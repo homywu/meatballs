@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Download, X, Share } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -9,6 +10,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function AddToHomeScreen() {
+  const t = useTranslations('addToHome');
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIOSPrompt, setShowIOSPrompt] = useState(false);
   const [isIOS] = useState(() => {
@@ -65,15 +67,15 @@ export default function AddToHomeScreen() {
               <Download className="w-5 h-5 text-orange-500" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 mb-1">添加到主屏幕</h3>
+              <h3 className="font-semibold text-gray-900 mb-1">{t('title')}</h3>
               <p className="text-sm text-gray-600 mb-3">
-                将应用添加到主屏幕，方便快速下单
+                {t('description')}
               </p>
               <button
                 onClick={handleAndroidInstall}
                 className="w-full bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors"
               >
-                立即添加
+                {t('addNow')}
               </button>
             </div>
           </div>
@@ -92,15 +94,15 @@ export default function AddToHomeScreen() {
               <Share className="w-5 h-5 text-orange-500" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 mb-1">添加到主屏幕</h3>
+              <h3 className="font-semibold text-gray-900 mb-1">{t('iosTitle')}</h3>
               <p className="text-sm text-gray-600 mb-3">
-                请使用 Safari 浏览器，点击底部分享按钮，然后选择&ldquo;添加到主屏幕&rdquo;
+                {t('iosDescription')}
               </p>
               <button
                 onClick={() => setShowIOSPrompt(true)}
                 className="w-full bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors"
               >
-                查看详细步骤
+                {t('viewSteps')}
               </button>
             </div>
           </div>
@@ -115,7 +117,7 @@ export default function AddToHomeScreen() {
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">添加到主屏幕</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('iosTitle')}</h3>
             <button
               onClick={() => setShowIOSPrompt(false)}
               className="text-gray-400 hover:text-gray-600"
@@ -126,9 +128,9 @@ export default function AddToHomeScreen() {
 
           <div className="space-y-4">
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
-              <p className="text-sm text-orange-800 font-medium mb-1">重要提示</p>
+              <p className="text-sm text-orange-800 font-medium mb-1">{t('important')}</p>
               <p className="text-xs text-orange-700">
-                请确保使用 <strong>Safari 浏览器</strong>。Chrome 等其他浏览器可能不支持此功能。
+                {t('importantNote')}
               </p>
             </div>
 
@@ -138,7 +140,7 @@ export default function AddToHomeScreen() {
               </div>
               <div className="flex-1">
                 <p className="text-gray-700">
-                  在 Safari 浏览器中，点击屏幕底部的 <Share className="w-4 h-4 inline mx-1" /> 分享按钮（方形图标，带向上箭头）
+                  {t('step1')}
                 </p>
               </div>
             </div>
@@ -149,7 +151,7 @@ export default function AddToHomeScreen() {
               </div>
               <div className="flex-1">
                 <p className="text-gray-700">
-                  在分享菜单中向下滚动，找到并点击&ldquo;添加到主屏幕&rdquo;选项
+                  {t('step2')}
                 </p>
               </div>
             </div>
@@ -160,7 +162,7 @@ export default function AddToHomeScreen() {
               </div>
               <div className="flex-1">
                 <p className="text-gray-700">
-                  点击右上角的&ldquo;添加&rdquo;按钮确认
+                  {t('step3')}
                 </p>
               </div>
             </div>
@@ -170,7 +172,7 @@ export default function AddToHomeScreen() {
             onClick={() => setShowIOSPrompt(false)}
             className="mt-6 w-full bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors"
           >
-            我知道了
+            {t('gotIt')}
           </button>
         </div>
       </div>

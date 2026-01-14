@@ -1,0 +1,86 @@
+{
+  "common": {
+    "appName": "潮·作",
+    "tagline": "CRAFT & CHAO",
+    "status": {
+      "accepting": "接單中"
+    }
+  },
+  "hero": {
+    "badge": "Sage Hill 最正宗",
+    "title": "每一顆肉丸，\n都是靈魂的撞擊。",
+    "highlight": "靈魂",
+    "features": {
+      "fresh": "每日新鮮手打",
+      "noPreservatives": "零添加防腐劑"
+    }
+  },
+  "menu": {
+    "title": "今日菜單",
+    "lowStock": "庫存緊張",
+    "unit": "1LB / 包 (真空包裝)",
+    "addToCart": "來一包",
+    "products": {
+      "beef": {
+        "name": "招牌手打牛肉丸",
+        "desc": "選用頂級牛後腿肉，經過千次捶打，入口爆汁，爽口彈牙。",
+        "tag": "銷量冠軍 🔥"
+      },
+      "pork": {
+        "name": "黃金比例爆汁豬丸",
+        "desc": "肥瘦 3:7 黃金比例，加入秘製蔥油，每一口都是濃郁肉香。",
+        "tag": "小朋友最愛 👶"
+      },
+      "fish": {
+        "name": "深海手打魚蛋",
+        "desc": "每日新鮮手打，鮮甜嫩滑，火鍋必備神物。",
+        "tag": "火鍋必備 🍲"
+      }
+    }
+  },
+  "checkout": {
+    "title": "收貨信息",
+    "pickup": "Sage Hill 自取",
+    "delivery": "送貨上門",
+    "form": {
+      "name": "您的稱呼",
+      "namePlaceholder": "e.g. Samson",
+      "phone": "電話號碼 (e-Transfer 對賬用)",
+      "phonePlaceholder": "403-XXX-XXXX",
+      "address": "送貨地址",
+      "addressPlaceholder": "請輸入詳細街道地址..."
+    },
+    "items": "件商品",
+    "checkout": "去買單",
+    "fillForm": "請填資料"
+  },
+  "success": {
+    "title": "訂單已收到！",
+    "subtitle": "準備好享受美味肉丸了嗎？😋",
+    "total": "訂單總額 (Total)",
+    "step1": "請 e-Transfer 至：",
+    "step2": "備註電話號碼：",
+    "step2Note": "請務必在 Message 備註 {phone}，方便我們核對您的訂單！",
+    "copy": "Copy",
+    "copied": "Copied",
+    "backHome": "返回首頁"
+  },
+  "addToHome": {
+    "title": "添加到主屏幕",
+    "description": "將應用添加到主屏幕，方便快速下單",
+    "addNow": "立即添加",
+    "iosTitle": "添加到主屏幕",
+    "iosDescription": "請使用 Safari 瀏覽器，點擊底部分享按鈕，然後選擇「添加到主屏幕」",
+    "viewSteps": "查看詳細步驟",
+    "important": "重要提示",
+    "importantNote": "請確保使用 Safari 瀏覽器。Chrome 等其他瀏覽器可能不支持此功能。",
+    "step1": "在 Safari 瀏覽器中，點擊屏幕底部的分享按鈕（方形圖標，帶向上箭頭）",
+    "step2": "在分享菜單中向下滾動，找到並點擊「添加到主屏幕」選項",
+    "step3": "點擊右上角的「添加」按鈕確認",
+    "gotIt": "我知道了"
+  },
+  "metadata": {
+    "title": "潮·作 | CRAFT & CHAO",
+    "description": "輕鬆訂購美味手打肉丸"
+  }
+}

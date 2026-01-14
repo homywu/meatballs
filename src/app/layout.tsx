@@ -1,56 +1,8 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "潮·作 | CRAFT & CHAO",
-  description: "轻松订购美味手打肉丸",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "潮·作",
-  },
-  formatDetection: {
-    telephone: false,
-  },
-  openGraph: {
-    type: "website",
-    siteName: "潮·作 | CRAFT & CHAO",
-    title: "潮·作 | CRAFT & CHAO",
-    description: "轻松订购美味手打肉丸",
-  },
-};
-
+// Root layout - minimal, just for Next.js structure
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  return (
-    <html lang="zh-CN">
-      <head>
-        <link rel="apple-touch-icon" href="/icon_192.png" />
-        <meta name="theme-color" content="#ff6b35" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="潮·作" />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
-  );
+}) {
+  return children;
 }

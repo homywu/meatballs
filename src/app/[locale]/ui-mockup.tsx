@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   Plus,
   Minus,
@@ -14,36 +15,39 @@ import {
   Clock,
   ArrowRight
 } from 'lucide-react';
-
-// 模擬產品數據 (Config Data) - 加入圖片與標籤
-const PRODUCTS = [
-  {
-    id: 'beef',
-    name: '招牌手打牛肉丸',
-    desc: '選用頂級牛後腿肉，經過千次捶打，入口爆汁，爽口彈牙。',
-    price: 20,
-    tag: '銷量冠軍 🔥',
-    image: '/images/beef-meatballs.jpg' // 本地圖片
-  },
-  {
-    id: 'pork',
-    name: '黃金比例爆汁豬丸',
-    desc: '肥瘦 3:7 黃金比例，加入秘製蔥油，每一口都是濃郁肉香。',
-    price: 18,
-    tag: '小朋友最愛 👶',
-    image: '/images/pork-meatballs.jpg' // 本地圖片
-  },
-  {
-    id: 'fish',
-    name: '深海手打魚蛋',
-    desc: '每日新鮮手打，鮮甜嫩滑，火鍋必備神物。',
-    price: 22,
-    tag: '火鍋必備 🍲',
-    image: '/images/fish-meatballs.jpg' // 本地圖片 - 替代圖片
-  }
-];
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function MeatballApp() {
+  const t = useTranslations();
+  const locale = useLocale();
+
+  // 產品數據 - 使用翻譯
+  const PRODUCTS = useMemo(() => [
+    {
+      id: 'beef',
+      name: t('menu.products.beef.name'),
+      desc: t('menu.products.beef.desc'),
+      price: 20,
+      tag: t('menu.products.beef.tag'),
+      image: '/images/beef-meatballs.jpg'
+    },
+    {
+      id: 'pork',
+      name: t('menu.products.pork.name'),
+      desc: t('menu.products.pork.desc'),
+      price: 18,
+      tag: t('menu.products.pork.tag'),
+      image: '/images/pork-meatballs.jpg'
+    },
+    {
+      id: 'fish',
+      name: t('menu.products.fish.name'),
+      desc: t('menu.products.fish.desc'),
+      price: 22,
+      tag: t('menu.products.fish.tag'),
+      image: '/images/fish-meatballs.jpg'
+    }
+  ], [t]);
   // 狀態管理
   const [cart, setCart] = useState<Record<string, number>>({});
   const [step, setStep] = useState('menu');
@@ -134,12 +138,12 @@ export default function MeatballApp() {
           </div>
 
           <div>
-            <h2 className="text-2xl font-extrabold text-slate-800">訂單已收到！</h2>
-            <p className="text-slate-500 mt-2">準備好享受美味肉丸了嗎？😋</p>
+            <h2 className="text-2xl font-extrabold text-slate-800">{t('success.title')}</h2>
+            <p className="text-slate-500 mt-2">{t('success.subtitle')}</p>
           </div>
 
           <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-100 dashed-border">
-            <p className="text-sm font-medium text-slate-500 mb-1">訂單總額 (Total)</p>
+            <p className="text-sm font-medium text-slate-500 mb-1">{t('success.total')}</p>
             <p className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 font-serif">
               ${totalPrice.toFixed(2)}
             </p>
@@ -148,7 +152,7 @@ export default function MeatballApp() {
           <div className="space-y-4 text-left">
             <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
               <span className="bg-slate-800 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">1</span>
-              請 e-Transfer 至：
+              {t('success.step1')}
             </p>
             <div className="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 group hover:border-orange-300 transition-colors">
               <code className="text-slate-800 font-mono text-lg font-medium">samson@email.com</code>
@@ -157,18 +161,18 @@ export default function MeatballApp() {
                 className="text-sm bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 text-slate-600 hover:text-orange-600 hover:border-orange-200 active:scale-95 transition flex items-center gap-1"
               >
                 {copySuccess ? <CheckCircle size={14} /> : <Copy size={14} />}
-                {copySuccess ? 'Copied' : 'Copy'}
+                {copySuccess ? t('success.copied') : t('success.copy')}
               </button>
             </div>
 
             <p className="text-sm font-bold text-slate-700 flex items-center gap-2 mt-4">
               <span className="bg-slate-800 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">2</span>
-              備註電話號碼：
+              {t('success.step2')}
             </p>
             <div className="bg-red-50 p-3 rounded-xl border border-red-100 flex items-start gap-2">
               <div className="mt-0.5"><Star className="w-4 h-4 text-red-500 fill-red-500" /></div>
               <p className="text-sm text-red-700">
-                請務必在 Message 備註 <strong>{formData.phone}</strong>，方便我們核對您的訂單！
+                {t('success.step2Note', { phone: formData.phone })}
               </p>
             </div>
           </div>
@@ -177,7 +181,7 @@ export default function MeatballApp() {
             onClick={() => window.location.reload()}
             className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition shadow-lg hover:shadow-xl translate-y-0 hover:-translate-y-1"
           >
-            返回首頁
+            {t('success.backHome')}
           </button>
         </div>
       </div>
@@ -198,15 +202,18 @@ export default function MeatballApp() {
             <div className={`${isScrolled ? 'bg-orange-600 text-white' : 'bg-white/20 backdrop-blur text-white'} p-2 rounded-xl`}>
               <Flame size={20} className={isScrolled ? '' : 'fill-orange-400 text-orange-400'} />
             </div>
-            <h1 className="text-lg font-bold tracking-wide">潮·作</h1>
+            <h1 className="text-lg font-bold tracking-wide">{t('common.appName')}</h1>
           </div>
 
-          {/* 修復：狀態標籤不再隱藏，而是根據滾動狀態改變樣式 */}
-          <span className={`text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 transition-all ${isScrolled ? 'bg-green-100 text-green-700' : 'bg-black/30 text-white backdrop-blur-md border border-white/20'
-            }`}>
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-            接單中
-          </span>
+          {/* 狀態標籤和語言切換器 */}
+          <div className="flex items-center gap-2">
+            <span className={`text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 transition-all ${isScrolled ? 'bg-green-100 text-green-700' : 'bg-black/30 text-white backdrop-blur-md border border-white/20'
+              }`}>
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              {t('common.status.accepting')}
+            </span>
+            <LanguageSwitcher currentLocale={locale} isScrolled={isScrolled} />
+          </div>
         </div>
       </header>
 
@@ -225,14 +232,28 @@ export default function MeatballApp() {
 
         <div className="absolute bottom-0 left-0 right-0 z-20 p-6 pb-12 max-w-md mx-auto">
           <span className="inline-block px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-lg mb-3 shadow-lg">
-            Sage Hill 最正宗
+            {t('hero.badge')}
           </span>
           <h2 className="text-4xl font-extrabold text-white leading-tight mb-2 drop-shadow-lg">
-            每一顆肉丸，<br />都是<span className="text-orange-400">靈魂</span>的撞擊。
+            {t('hero.title').split('\n').map((line, i, arr) => {
+              const highlight = t('hero.highlight');
+              const parts = line.split(highlight);
+              return (
+                <React.Fragment key={i}>
+                  {parts.map((part, j) => (
+                    <React.Fragment key={j}>
+                      {part}
+                      {j < parts.length - 1 && <span className="text-orange-400">{highlight}</span>}
+                    </React.Fragment>
+                  ))}
+                  {i < arr.length - 1 && <br />}
+                </React.Fragment>
+              );
+            })}
           </h2>
           <p className="text-slate-200 text-sm font-medium flex items-center gap-4 mt-4">
-            <span className="flex items-center gap-1"><Clock size={14} /> 每日新鮮手打</span>
-            <span className="flex items-center gap-1"><Star size={14} /> 零添加防腐劑</span>
+            <span className="flex items-center gap-1"><Clock size={14} /> {t('hero.features.fresh')}</span>
+            <span className="flex items-center gap-1"><Star size={14} /> {t('hero.features.noPreservatives')}</span>
           </p>
         </div>
 
@@ -252,11 +273,11 @@ export default function MeatballApp() {
           {/* Enhanced Header Design */}
           <div className="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
             <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-              🍽️ 今日菜單
+              🍽️ {t('menu.title')}
             </h3>
             <span className="text-xs font-bold text-orange-700 bg-orange-50 px-3 py-1.5 rounded-full flex items-center gap-1 border border-orange-100">
               <Flame size={12} className="fill-orange-500 text-orange-500" />
-              庫存緊張
+              {t('menu.lowStock')}
             </span>
           </div>
 
@@ -294,7 +315,7 @@ export default function MeatballApp() {
                   {/* Action Area */}
                   <div className="flex items-center justify-between pt-4 border-t border-slate-50">
                     <div className="text-xs text-slate-400 font-medium">
-                      1LB / 包 (真空包裝)
+                      {t('menu.unit')}
                     </div>
 
                     <div className="flex items-center gap-3">
@@ -320,7 +341,7 @@ export default function MeatballApp() {
                           className="flex items-center gap-2 bg-orange-50 hover:bg-orange-100 text-orange-700 px-5 py-2.5 rounded-full text-sm font-bold transition-colors active:scale-95"
                         >
                           <Plus size={16} />
-                          來一包
+                          {t('menu.addToCart')}
                         </button>
                       )}
                     </div>
@@ -336,7 +357,7 @@ export default function MeatballApp() {
           <section className="bg-white p-6 rounded-3xl shadow-lg border border-orange-100 space-y-6 animate-in slide-in-from-bottom-8 duration-700">
             <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
               <MapPin className="text-orange-500" size={20} />
-              收貨信息
+              {t('checkout.title')}
             </h3>
 
             {/* Custom Toggle */}
@@ -347,7 +368,7 @@ export default function MeatballApp() {
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-300 shadow-sm ${deliveryType === 'pickup' ? 'bg-white text-slate-900 shadow-md ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
                   }`}
               >
-                <Store size={18} /> Sage Hill 自取
+                <Store size={18} /> {t('checkout.pickup')}
               </button>
               <button
                 type="button"
@@ -355,17 +376,17 @@ export default function MeatballApp() {
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-300 ${deliveryType === 'delivery' ? 'bg-white text-slate-900 shadow-md ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
                   }`}
               >
-                <MapPin size={18} /> 送貨上門
+                <MapPin size={18} /> {t('checkout.delivery')}
               </button>
             </div>
 
             <div className="space-y-4">
               <div className="group">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">您的稱呼</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.name')}</label>
                 <input
                   type="text"
                   name="name"
-                  placeholder="e.g. Samson"
+                  placeholder={t('checkout.form.namePlaceholder')}
                   value={formData.name}
                   onChange={handleInputChange}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
@@ -373,11 +394,11 @@ export default function MeatballApp() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">電話號碼 (e-Transfer 對賬用)</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.phone')}</label>
                 <input
                   type="tel"
                   name="phone"
-                  placeholder="403-XXX-XXXX"
+                  placeholder={t('checkout.form.phonePlaceholder')}
                   value={formData.phone}
                   onChange={handleInputChange}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
@@ -386,11 +407,11 @@ export default function MeatballApp() {
 
               {deliveryType === 'delivery' && (
                 <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">送貨地址</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.address')}</label>
                   <textarea
                     name="address"
                     rows={2}
-                    placeholder="請輸入詳細街道地址..."
+                    placeholder={t('checkout.form.addressPlaceholder')}
                     value={formData.address}
                     onChange={handleInputChange}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all resize-none"
@@ -408,7 +429,7 @@ export default function MeatballApp() {
           <div className="max-w-md mx-auto bg-slate-900/95 backdrop-blur-lg text-white p-2 pl-6 pr-2 rounded-[2rem] shadow-2xl flex items-center justify-between border border-white/10 animate-in slide-in-from-bottom-full duration-500">
 
             <div className="flex flex-col">
-              <span className="text-xs text-slate-400 font-medium">{totalQty} 件商品</span>
+              <span className="text-xs text-slate-400 font-medium">{totalQty} {t('checkout.items')}</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-lg font-bold text-orange-400">$</span>
                 <span className="text-2xl font-bold tracking-tight">{totalPrice}</span>
@@ -424,10 +445,10 @@ export default function MeatballApp() {
                 }`}
             >
               {(!formData.name || !formData.phone) ? (
-                <span className="text-sm">請填資料</span>
+                <span className="text-sm">{t('checkout.fillForm')}</span>
               ) : (
                 <>
-                  <span className="text-sm">去買單</span>
+                  <span className="text-sm">{t('checkout.checkout')}</span>
                   <ArrowRight size={18} />
                 </>
               )}

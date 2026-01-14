@@ -1,0 +1,86 @@
+{
+  "common": {
+    "appName": "潮·作",
+    "tagline": "CRAFT & CHAO",
+    "status": {
+      "accepting": "Accepting Orders"
+    }
+  },
+  "hero": {
+    "badge": "Sage Hill's Most Authentic",
+    "title": "Every meatball is a\nsoul collision.",
+    "highlight": "soul",
+    "features": {
+      "fresh": "Freshly Handmade Daily",
+      "noPreservatives": "Zero Preservatives"
+    }
+  },
+  "menu": {
+    "title": "Today's Menu",
+    "lowStock": "Low Stock",
+    "unit": "1LB / Pack (Vacuum Sealed)",
+    "addToCart": "Add One",
+    "products": {
+      "beef": {
+        "name": "Signature Handmade Beef Meatballs",
+        "desc": "Made with premium beef hind leg, pounded thousands of times, bursting with juice and delightfully chewy.",
+        "tag": "Best Seller 🔥"
+      },
+      "pork": {
+        "name": "Golden Ratio Juicy Pork Meatballs",
+        "desc": "3:7 fat-to-lean golden ratio, infused with secret scallion oil, every bite is rich and aromatic.",
+        "tag": "Kids' Favorite 👶"
+      },
+      "fish": {
+        "name": "Deep Sea Handmade Fish Balls",
+        "desc": "Freshly handmade daily, sweet and tender, a must-have for hot pot.",
+        "tag": "Hot Pot Essential 🍲"
+      }
+    }
+  },
+  "checkout": {
+    "title": "Delivery Information",
+    "pickup": "Sage Hill Pickup",
+    "delivery": "Home Delivery",
+    "form": {
+      "name": "Your Name",
+      "namePlaceholder": "e.g. Samson",
+      "phone": "Phone Number (for e-Transfer verification)",
+      "phonePlaceholder": "403-XXX-XXXX",
+      "address": "Delivery Address",
+      "addressPlaceholder": "Please enter detailed street address..."
+    },
+    "items": "items",
+    "checkout": "Checkout",
+    "fillForm": "Please Fill Form"
+  },
+  "success": {
+    "title": "Order Received!",
+    "subtitle": "Ready to enjoy delicious meatballs? 😋",
+    "total": "Order Total",
+    "step1": "Please e-Transfer to:",
+    "step2": "Note Phone Number:",
+    "step2Note": "Please include {phone} in the Message to help us verify your order!",
+    "copy": "Copy",
+    "copied": "Copied",
+    "backHome": "Back to Home"
+  },
+  "addToHome": {
+    "title": "Add to Home Screen",
+    "description": "Add the app to your home screen for quick ordering",
+    "addNow": "Add Now",
+    "iosTitle": "Add to Home Screen",
+    "iosDescription": "Please use Safari browser, tap the share button at the bottom, then select \"Add to Home Screen\"",
+    "viewSteps": "View Detailed Steps",
+    "important": "Important",
+    "importantNote": "Please make sure to use Safari browser. Other browsers like Chrome may not support this feature.",
+    "step1": "In Safari browser, tap the share button at the bottom of the screen (square icon with upward arrow)",
+    "step2": "Scroll down in the share menu, find and tap \"Add to Home Screen\" option",
+    "step3": "Tap the \"Add\" button in the top right corner to confirm",
+    "gotIt": "Got It"
+  },
+  "metadata": {
+    "title": "潮·作 | CRAFT & CHAO",
+    "description": "Order delicious handmade meatballs with ease"
+  }
+}
