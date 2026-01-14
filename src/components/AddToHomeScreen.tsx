@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Download, X, Share2 } from 'lucide-react';
+import { Download, X, Share2, Share } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -19,11 +19,6 @@ export default function AddToHomeScreen() {
     if (typeof window === 'undefined') return false;
     return window.matchMedia('(display-mode: standalone)').matches;
   });
-  const [supportsShare] = useState(() => {
-    if (typeof navigator === 'undefined') return false;
-    return typeof navigator.share !== 'undefined';
-  });
-
   useEffect(() => {
     // 如果已安装，不需要设置其他内容
     if (isInstalled) {
@@ -52,29 +47,6 @@ export default function AddToHomeScreen() {
     if (outcome === 'accepted') {
       setDeferredPrompt(null);
       setIsInstalled(true);
-    }
-  };
-
-  const handleIOSShare = async () => {
-    // 使用 Web Share API 打开分享菜单
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: '肉丸订购系统',
-          text: '轻松订购美味手打肉丸',
-          url: window.location.href,
-        });
-        // 分享成功后，用户可以在分享菜单中找到"添加到主屏幕"选项
-      } catch (error: unknown) {
-        // 用户取消分享或发生错误
-        if (error instanceof Error && error.name !== 'AbortError') {
-          // 如果不是用户取消，显示步骤说明
-          setShowIOSPrompt(true);
-        }
-      }
-    } else {
-      // 不支持 Web Share API，显示步骤说明
-      setShowIOSPrompt(true);
     }
   };
 
@@ -110,39 +82,26 @@ export default function AddToHomeScreen() {
     );
   }
 
-  // iOS: 显示分享按钮
+  // iOS: 显示添加提示
   if (isIOS && !showIOSPrompt) {
     return (
       <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:w-80">
         <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
-              <Share2 className="w-5 h-5 text-orange-500" />
+              <Share className="w-5 h-5 text-orange-500" />
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-gray-900 mb-1">添加到主屏幕</h3>
               <p className="text-sm text-gray-600 mb-3">
-                {supportsShare
-                  ? '点击下方按钮，在分享菜单中选择&ldquo;添加到主屏幕&rdquo;'
-                  : '点击下方按钮查看添加步骤'}
+                请使用 Safari 浏览器，点击底部分享按钮，然后选择&ldquo;添加到主屏幕&rdquo;
               </p>
-              <div className="flex gap-2">
-                {supportsShare && (
-                  <button
-                    onClick={handleIOSShare}
-                    className="flex-1 bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    打开分享菜单
-                  </button>
-                )}
-                <button
-                  onClick={() => setShowIOSPrompt(true)}
-                  className={`${supportsShare ? 'flex-1' : 'w-full'} bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors`}
-                >
-                  查看步骤
-                </button>
-              </div>
+              <button
+                onClick={() => setShowIOSPrompt(true)}
+                className="w-full bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors"
+              >
+                查看详细步骤
+              </button>
             </div>
           </div>
         </div>
@@ -166,13 +125,20 @@ export default function AddToHomeScreen() {
           </div>
 
           <div className="space-y-4">
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+              <p className="text-sm text-orange-800 font-medium mb-1">重要提示</p>
+              <p className="text-xs text-orange-700">
+                请确保使用 <strong>Safari 浏览器</strong>。Chrome 等其他浏览器可能不支持此功能。
+              </p>
+            </div>
+
             <div className="flex gap-3">
               <div className="flex-shrink-0 w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-semibold">
                 1
               </div>
               <div className="flex-1">
                 <p className="text-gray-700">
-                  点击浏览器底部的 <Share2 className="w-4 h-4 inline mx-1" /> 分享按钮
+                  在 Safari 浏览器中，点击屏幕底部的 <Share2 className="w-4 h-4 inline mx-1" /> 分享按钮（方形图标，带向上箭头）
                 </p>
               </div>
             </div>
@@ -183,7 +149,7 @@ export default function AddToHomeScreen() {
               </div>
               <div className="flex-1">
                 <p className="text-gray-700">
-                  向下滚动，找到并点击&ldquo;添加到主屏幕&rdquo;
+                  在分享菜单中向下滚动，找到并点击&ldquo;添加到主屏幕&rdquo;选项
                 </p>
               </div>
             </div>
@@ -194,7 +160,7 @@ export default function AddToHomeScreen() {
               </div>
               <div className="flex-1">
                 <p className="text-gray-700">
-                  点击&ldquo;添加&rdquo;确认
+                  点击右上角的&ldquo;添加&rdquo;按钮确认
                 </p>
               </div>
             </div>
