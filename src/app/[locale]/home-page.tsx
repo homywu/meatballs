@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
-export default function MeatballApp() {
+export default function HomePage() {
   const t = useTranslations();
   const locale = useLocale();
 

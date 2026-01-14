@@ -1,10 +1,10 @@
-import MeatballApp from './ui-mockup';
+import HomePage from './[locale]/home-page';
 import AddToHomeScreen from '../components/AddToHomeScreen';
 
 export default function Home() {
   return (
     <>
-      <MeatballApp />
+      <HomePage />
       <AddToHomeScreen />
     </>
   );
