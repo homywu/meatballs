@@ -1,6 +1,6 @@
 # Design Patterns & Principles
 
-## Samson's Kitchen UI Mockup Analysis
+## 潮·作 | CRAFT & CHAO UI Mockup Analysis
 
 ---
 
@@ -401,7 +401,7 @@ className="bg-slate-700 text-slate-400 cursor-not-allowed"
 
 - Warm color palette (oranges, reds)
 - Rich food imagery
-- Personal brand voice ("Samson's Kitchen")
+- Personal brand voice ("潮·作 | CRAFT & CHAO")
 
 ### 2. **Premium Quality**
 

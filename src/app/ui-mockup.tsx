@@ -198,7 +198,7 @@ export default function MeatballApp() {
             <div className={`${isScrolled ? 'bg-orange-600 text-white' : 'bg-white/20 backdrop-blur text-white'} p-2 rounded-xl`}>
               <Flame size={20} className={isScrolled ? '' : 'fill-orange-400 text-orange-400'} />
             </div>
-            <h1 className="text-lg font-bold tracking-wide">Samson&apos;s Kitchen</h1>
+            <h1 className="text-lg font-bold tracking-wide">潮·作</h1>
           </div>
 
           {/* 修復：狀態標籤不再隱藏，而是根據滾動狀態改變樣式 */}

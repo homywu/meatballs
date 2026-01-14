@@ -1,4 +1,4 @@
-# Project Specification: Meatball Ordering System (MVP)
+# Project Specification: 潮·作 | CRAFT & CHAO (MVP)
 
 ## 1. Project Overview
 

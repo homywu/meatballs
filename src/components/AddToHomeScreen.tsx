@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Download, X, Share2, Share } from 'lucide-react';
+import { Download, X, Share } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -138,7 +138,7 @@ export default function AddToHomeScreen() {
               </div>
               <div className="flex-1">
                 <p className="text-gray-700">
-                  在 Safari 浏览器中，点击屏幕底部的 <Share2 className="w-4 h-4 inline mx-1" /> 分享按钮（方形图标，带向上箭头）
+                  在 Safari 浏览器中，点击屏幕底部的 <Share className="w-4 h-4 inline mx-1" /> 分享按钮（方形图标，带向上箭头）
                 </p>
               </div>
             </div>

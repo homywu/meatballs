@@ -13,21 +13,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "肉丸订购系统",
+  title: "潮·作 | CRAFT & CHAO",
   description: "轻松订购美味手打肉丸",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "肉丸订购",
+    title: "潮·作",
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
     type: "website",
-    siteName: "肉丸订购系统",
-    title: "肉丸订购系统",
+    siteName: "潮·作 | CRAFT & CHAO",
+    title: "潮·作 | CRAFT & CHAO",
     description: "轻松订购美味手打肉丸",
   },
 };
@@ -44,7 +44,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#ff6b35" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="肉丸订购" />
+        <meta name="apple-mobile-web-app-title" content="潮·作" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
