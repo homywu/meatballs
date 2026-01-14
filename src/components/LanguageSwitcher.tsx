@@ -30,7 +30,7 @@ export default function LanguageSwitcher({
         }`}
     >
       <Globe size={12} />
-      <span>{currentLocale === 'zh' ? 'EN' : '中文'}</span>
+      <span>{currentLocale === 'zh' ? '中文' : 'EN'}</span>
     </button>
   );
 }
