@@ -1,0 +1,440 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import {
+  Plus,
+  Minus,
+  MapPin,
+  Store,
+  Copy,
+  CheckCircle,
+  Flame,
+  Star,
+  Clock,
+  ArrowRight
+} from 'lucide-react';
+
+// 模擬產品數據 (Config Data) - 加入圖片與標籤
+const PRODUCTS = [
+  {
+    id: 'beef',
+    name: '招牌手打牛肉丸',
+    desc: '選用頂級牛後腿肉，經過千次捶打，入口爆汁，爽口彈牙。',
+    price: 20,
+    tag: '銷量冠軍 🔥',
+    image: '/images/beef-meatballs.jpg' // 本地圖片
+  },
+  {
+    id: 'pork',
+    name: '黃金比例爆汁豬丸',
+    desc: '肥瘦 3:7 黃金比例，加入秘製蔥油，每一口都是濃郁肉香。',
+    price: 18,
+    tag: '小朋友最愛 👶',
+    image: '/images/pork-meatballs.jpg' // 本地圖片
+  },
+  {
+    id: 'fish',
+    name: '深海手打魚蛋',
+    desc: '每日新鮮手打，鮮甜嫩滑，火鍋必備神物。',
+    price: 22,
+    tag: '火鍋必備 🍲',
+    image: '/images/fish-meatballs.jpg' // 本地圖片 - 替代圖片
+  }
+];
+
+export default function MeatballApp() {
+  // 狀態管理
+  const [cart, setCart] = useState<Record<string, number>>({});
+  const [step, setStep] = useState('menu');
+  const [deliveryType, setDeliveryType] = useState('pickup');
+  const [formData, setFormData] = useState({ name: '', phone: '', address: '', notes: '' });
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // 監聽滾動以改變 Header 樣式
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // 計算總價與總數量
+  const totalQty = Object.values(cart).reduce((a, b) => a + b, 0);
+  const totalPrice = Object.entries(cart).reduce((total, [id, qty]: [string, number]) => {
+    const product = PRODUCTS.find(p => p.id === id);
+    return total + (product ? product.price * qty : 0);
+  }, 0);
+
+  // 處理加減購物車
+  const updateCart = (id: string, delta: number) => {
+    setCart(prev => {
+      const currentQty = prev[id] || 0;
+      const newQty = Math.max(0, currentQty + delta);
+      if (newQty === 0) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [id]: _, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, [id]: newQty };
+    });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setTimeout(() => {
+      setStep('success');
+      window.scrollTo(0, 0);
+    }, 800);
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      // Modern clipboard API
+      await navigator.clipboard.writeText('samson@email.com');
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = 'samson@email.com';
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      } catch (fallbackErr) {
+        console.error('Copy failed', fallbackErr);
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
+  // --- 視圖組件 ---
+
+  // 1. 成功頁面 (Success View)
+  if (step === 'success') {
+    return (
+      <div className="min-h-screen bg-orange-50/50 flex flex-col items-center justify-center p-6 font-sans">
+        <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 text-center space-y-6 animate-in fade-in zoom-in duration-300 border border-orange-100">
+          <div className="flex justify-center mb-4">
+            <div className="bg-green-100 p-4 rounded-full">
+              <CheckCircle className="w-16 h-16 text-green-600" />
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-extrabold text-slate-800">訂單已收到！</h2>
+            <p className="text-slate-500 mt-2">準備好享受美味肉丸了嗎？😋</p>
+          </div>
+
+          <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-100 dashed-border">
+            <p className="text-sm font-medium text-slate-500 mb-1">訂單總額 (Total)</p>
+            <p className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 font-serif">
+              ${totalPrice.toFixed(2)}
+            </p>
+          </div>
+
+          <div className="space-y-4 text-left">
+            <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+              <span className="bg-slate-800 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">1</span>
+              請 e-Transfer 至：
+            </p>
+            <div className="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 group hover:border-orange-300 transition-colors">
+              <code className="text-slate-800 font-mono text-lg font-medium">samson@email.com</code>
+              <button
+                onClick={copyToClipboard}
+                className="text-sm bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 text-slate-600 hover:text-orange-600 hover:border-orange-200 active:scale-95 transition flex items-center gap-1"
+              >
+                {copySuccess ? <CheckCircle size={14} /> : <Copy size={14} />}
+                {copySuccess ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+
+            <p className="text-sm font-bold text-slate-700 flex items-center gap-2 mt-4">
+              <span className="bg-slate-800 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">2</span>
+              備註電話號碼：
+            </p>
+            <div className="bg-red-50 p-3 rounded-xl border border-red-100 flex items-start gap-2">
+              <div className="mt-0.5"><Star className="w-4 h-4 text-red-500 fill-red-500" /></div>
+              <p className="text-sm text-red-700">
+                請務必在 Message 備註 <strong>{formData.phone}</strong>，方便我們核對您的訂單！
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition shadow-lg hover:shadow-xl translate-y-0 hover:-translate-y-1"
+          >
+            返回首頁
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. 主下單頁面 (Order View)
+  return (
+    <div className="min-h-screen bg-[#FDFBF7] pb-32 font-sans selection:bg-orange-200">
+
+      {/* Immersive Header */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-4'
+          }`}
+      >
+        <div className="max-w-md mx-auto px-4 flex justify-between items-center">
+          <div className={`flex items-center space-x-2 transition-colors ${isScrolled ? 'text-slate-800' : 'text-white'}`}>
+            <div className={`${isScrolled ? 'bg-orange-600 text-white' : 'bg-white/20 backdrop-blur text-white'} p-2 rounded-xl`}>
+              <Flame size={20} className={isScrolled ? '' : 'fill-orange-400 text-orange-400'} />
+            </div>
+            <h1 className="text-lg font-bold tracking-wide">Samson&apos;s Kitchen</h1>
+          </div>
+
+          {/* 修復：狀態標籤不再隱藏，而是根據滾動狀態改變樣式 */}
+          <span className={`text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 transition-all ${isScrolled ? 'bg-green-100 text-green-700' : 'bg-black/30 text-white backdrop-blur-md border border-white/20'
+            }`}>
+            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            接單中
+          </span>
+        </div>
+      </header>
+
+      {/* Hero Section with Background Image */}
+      <div className="relative h-[420px] w-full overflow-hidden">
+        {/* Dark Overlay gradient - 修復：改為上下雙向漸變，確保 Header 和底部文字都清晰 */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/10 to-black/80 z-10"></div>
+        <Image
+          src="/images/hero-meatballs.jpg"
+          alt="Delicious Meatballs"
+          fill
+          className="object-cover object-center animate-in fade-in duration-1000 scale-105"
+          priority
+          sizes="100vw"
+        />
+
+        <div className="absolute bottom-0 left-0 right-0 z-20 p-6 pb-12 max-w-md mx-auto">
+          <span className="inline-block px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-lg mb-3 shadow-lg">
+            Sage Hill 最正宗
+          </span>
+          <h2 className="text-4xl font-extrabold text-white leading-tight mb-2 drop-shadow-lg">
+            每一顆肉丸，<br />都是<span className="text-orange-400">靈魂</span>的撞擊。
+          </h2>
+          <p className="text-slate-200 text-sm font-medium flex items-center gap-4 mt-4">
+            <span className="flex items-center gap-1"><Clock size={14} /> 每日新鮮手打</span>
+            <span className="flex items-center gap-1"><Star size={14} /> 零添加防腐劑</span>
+          </p>
+        </div>
+
+        {/* Curved Divider */}
+        <div className="absolute bottom-[-1px] left-0 w-full overflow-hidden leading-[0] z-20">
+          <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block h-[40px] w-full fill-[#FDFBF7] rotate-180">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"></path>
+          </svg>
+        </div>
+      </div>
+
+      {/* Main Content - Adjusted spacing and z-index */}
+      <main className="max-w-md mx-auto px-4 mt-4 relative z-30 space-y-8">
+
+        {/* Menu Section */}
+        <section className="space-y-6">
+          {/* Enhanced Header Design */}
+          <div className="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+            <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+              🍽️ 今日菜單
+            </h3>
+            <span className="text-xs font-bold text-orange-700 bg-orange-50 px-3 py-1.5 rounded-full flex items-center gap-1 border border-orange-100">
+              <Flame size={12} className="fill-orange-500 text-orange-500" />
+              庫存緊張
+            </span>
+          </div>
+
+          <div className="grid gap-6">
+            {PRODUCTS.map(product => (
+              <div key={product.id} className="group bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-100">
+                {/* Image Area */}
+                <div className="relative h-48 overflow-hidden">
+                  <div className="absolute top-3 left-3 z-10">
+                    <span className="px-3 py-1 bg-white/90 backdrop-blur text-orange-600 text-xs font-bold rounded-full shadow-sm flex items-center gap-1">
+                      {product.tag}
+                    </span>
+                  </div>
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    sizes="(max-width: 768px) 100vw, 400px"
+                  />
+                  {/* Gradient Overlay for text readability if needed, but here we keep it clean */}
+                </div>
+
+                {/* Content Area */}
+                <div className="p-5">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="text-lg font-bold text-slate-800">{product.name}</h4>
+                    <span className="text-xl font-bold text-orange-600 font-serif">${product.price}</span>
+                  </div>
+
+                  <p className="text-sm text-slate-500 leading-relaxed mb-6">
+                    {product.desc}
+                  </p>
+
+                  {/* Action Area */}
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                    <div className="text-xs text-slate-400 font-medium">
+                      1LB / 包 (真空包裝)
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      {cart[product.id] > 0 ? (
+                        <div className="flex items-center bg-slate-900 rounded-full p-1 shadow-lg">
+                          <button
+                            onClick={() => updateCart(product.id, -1)}
+                            className="w-8 h-8 flex items-center justify-center bg-slate-800 rounded-full text-white hover:bg-slate-700 transition"
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <span className="w-10 text-center font-bold text-white text-sm">{cart[product.id]}</span>
+                          <button
+                            onClick={() => updateCart(product.id, 1)}
+                            className="w-8 h-8 flex items-center justify-center bg-white rounded-full text-slate-900 hover:scale-105 transition"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => updateCart(product.id, 1)}
+                          className="flex items-center gap-2 bg-orange-50 hover:bg-orange-100 text-orange-700 px-5 py-2.5 rounded-full text-sm font-bold transition-colors active:scale-95"
+                        >
+                          <Plus size={16} />
+                          來一包
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Checkout Form Section */}
+        {totalQty > 0 && (
+          <section className="bg-white p-6 rounded-3xl shadow-lg border border-orange-100 space-y-6 animate-in slide-in-from-bottom-8 duration-700">
+            <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <MapPin className="text-orange-500" size={20} />
+              收貨信息
+            </h3>
+
+            {/* Custom Toggle */}
+            <div className="bg-slate-100 p-1.5 rounded-2xl flex relative font-medium text-sm">
+              <button
+                type="button"
+                onClick={() => setDeliveryType('pickup')}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-300 shadow-sm ${deliveryType === 'pickup' ? 'bg-white text-slate-900 shadow-md ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
+                  }`}
+              >
+                <Store size={18} /> Sage Hill 自取
+              </button>
+              <button
+                type="button"
+                onClick={() => setDeliveryType('delivery')}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-300 ${deliveryType === 'delivery' ? 'bg-white text-slate-900 shadow-md ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
+                  }`}
+              >
+                <MapPin size={18} /> 送貨上門
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="group">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">您的稱呼</label>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="e.g. Samson"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">電話號碼 (e-Transfer 對賬用)</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="403-XXX-XXXX"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
+                />
+              </div>
+
+              {deliveryType === 'delivery' && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">送貨地址</label>
+                  <textarea
+                    name="address"
+                    rows={2}
+                    placeholder="請輸入詳細街道地址..."
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all resize-none"
+                  ></textarea>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+      </main>
+
+      {/* Sticky Checkout Bar */}
+      {totalQty > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 safe-area-bottom">
+          <div className="max-w-md mx-auto bg-slate-900/95 backdrop-blur-lg text-white p-2 pl-6 pr-2 rounded-[2rem] shadow-2xl flex items-center justify-between border border-white/10 animate-in slide-in-from-bottom-full duration-500">
+
+            <div className="flex flex-col">
+              <span className="text-xs text-slate-400 font-medium">{totalQty} 件商品</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-lg font-bold text-orange-400">$</span>
+                <span className="text-2xl font-bold tracking-tight">{totalPrice}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={handleSubmit}
+              disabled={!formData.name || !formData.phone}
+              className={`h-12 px-6 rounded-full font-bold flex items-center gap-2 transition-all transform ${(!formData.name || !formData.phone)
+                ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-orange-500 to-red-600 hover:scale-105 active:scale-95 shadow-lg shadow-orange-900/50'
+                }`}
+            >
+              {(!formData.name || !formData.phone) ? (
+                <span className="text-sm">請填資料</span>
+              ) : (
+                <>
+                  <span className="text-sm">去買單</span>
+                  <ArrowRight size={18} />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
