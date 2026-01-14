@@ -11,19 +11,24 @@ interface BeforeInstallPromptEvent extends Event {
 export default function AddToHomeScreen() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIOSPrompt, setShowIOSPrompt] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [isIOS] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as Window & { MSStream?: unknown }).MSStream;
+  });
+  const [isInstalled, setIsInstalled] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(display-mode: standalone)').matches;
+  });
+  const [supportsShare] = useState(() => {
+    if (typeof navigator === 'undefined') return false;
+    return typeof navigator.share !== 'undefined';
+  });
 
   useEffect(() => {
-    // 检测是否已安装
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
+    // 如果已安装，不需要设置其他内容
+    if (isInstalled) {
       return;
     }
-
-    // 检测 iOS
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-    setIsIOS(iOS);
 
     // Android: 监听 beforeinstallprompt 事件
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -33,34 +38,44 @@ export default function AddToHomeScreen() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // 检查是否已经安装（通过检查是否在独立模式下运行）
-    const checkInstalled = () => {
-      if (window.matchMedia('(display-mode: standalone)').matches) {
-        setIsInstalled(true);
-      }
-    };
-
-    checkInstalled();
-
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
-  }, []);
+  }, [isInstalled]);
 
   const handleAndroidInstall = async () => {
     if (!deferredPrompt) return;
 
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    
+
     if (outcome === 'accepted') {
       setDeferredPrompt(null);
       setIsInstalled(true);
     }
   };
 
-  const handleIOSInstall = () => {
-    setShowIOSPrompt(true);
+  const handleIOSShare = async () => {
+    // 使用 Web Share API 打开分享菜单
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: '肉丸订购系统',
+          text: '轻松订购美味手打肉丸',
+          url: window.location.href,
+        });
+        // 分享成功后，用户可以在分享菜单中找到"添加到主屏幕"选项
+      } catch (error: unknown) {
+        // 用户取消分享或发生错误
+        if (error instanceof Error && error.name !== 'AbortError') {
+          // 如果不是用户取消，显示步骤说明
+          setShowIOSPrompt(true);
+        }
+      }
+    } else {
+      // 不支持 Web Share API，显示步骤说明
+      setShowIOSPrompt(true);
+    }
   };
 
   // 如果已安装，不显示按钮
@@ -95,7 +110,7 @@ export default function AddToHomeScreen() {
     );
   }
 
-  // iOS: 显示自定义提示
+  // iOS: 显示分享按钮
   if (isIOS && !showIOSPrompt) {
     return (
       <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:w-80">
@@ -107,14 +122,27 @@ export default function AddToHomeScreen() {
             <div className="flex-1">
               <h3 className="font-semibold text-gray-900 mb-1">添加到主屏幕</h3>
               <p className="text-sm text-gray-600 mb-3">
-                点击下方按钮，然后选择"添加到主屏幕"
+                {supportsShare
+                  ? '点击下方按钮，在分享菜单中选择&ldquo;添加到主屏幕&rdquo;'
+                  : '点击下方按钮查看添加步骤'}
               </p>
-              <button
-                onClick={handleIOSInstall}
-                className="w-full bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors"
-              >
-                显示步骤
-              </button>
+              <div className="flex gap-2">
+                {supportsShare && (
+                  <button
+                    onClick={handleIOSShare}
+                    className="flex-1 bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    打开分享菜单
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowIOSPrompt(true)}
+                  className={`${supportsShare ? 'flex-1' : 'w-full'} bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors`}
+                >
+                  查看步骤
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -136,7 +164,7 @@ export default function AddToHomeScreen() {
               <X className="w-5 h-5" />
             </button>
           </div>
-          
+
           <div className="space-y-4">
             <div className="flex gap-3">
               <div className="flex-shrink-0 w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-semibold">
@@ -148,30 +176,30 @@ export default function AddToHomeScreen() {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex gap-3">
               <div className="flex-shrink-0 w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-semibold">
                 2
               </div>
               <div className="flex-1">
                 <p className="text-gray-700">
-                  向下滚动，找到并点击"添加到主屏幕"
+                  向下滚动，找到并点击&ldquo;添加到主屏幕&rdquo;
                 </p>
               </div>
             </div>
-            
+
             <div className="flex gap-3">
               <div className="flex-shrink-0 w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-semibold">
                 3
               </div>
               <div className="flex-1">
                 <p className="text-gray-700">
-                  点击"添加"确认
+                  点击&ldquo;添加&rdquo;确认
                 </p>
               </div>
             </div>
           </div>
-          
+
           <button
             onClick={() => setShowIOSPrompt(false)}
             className="mt-6 w-full bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors"
