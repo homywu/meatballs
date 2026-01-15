@@ -62,7 +62,7 @@ export default async function LocaleLayout({
   return (
     <html lang={langAttr}>
       <head>
-        <link rel="apple-touch-icon" href="/icon_192.png" />
+        <link rel="apple-touch-icon" href="/logo_192.png" />
         <meta name="theme-color" content="#ff6b35" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
