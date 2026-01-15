@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
+import { useSession } from 'next-auth/react';
 import {
   Plus,
   Minus,
@@ -13,15 +14,29 @@ import {
   Flame,
   Star,
   Clock,
-  ArrowRight
+  ArrowRight,
+  History,
+  Menu,
+  X,
+  Globe,
+  LogIn,
+  LogOut,
+  User
 } from 'lucide-react';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
+import AuthButton from '@/components/AuthButton';
+import AuthGuard from '@/components/AuthGuard';
 import { submitOrder } from './actions';
+import { signIn, signOut } from 'next-auth/react';
+import { createNavigation } from 'next-intl/navigation';
+import { routing } from '@/i18n/routing';
 import type { OrderItem } from '@/types/order';
+
+const navigation = createNavigation(routing);
 
 export default function HomePage() {
   const t = useTranslations();
   const locale = useLocale();
+  const { data: session } = useSession();
 
   // 產品數據 - 使用翻譯
   const PRODUCTS = useMemo(() => [
@@ -59,6 +74,9 @@ export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = navigation.useRouter();
+  const pathname = navigation.usePathname();
 
   // 監聽滾動以改變 Header 樣式
   useEffect(() => {
@@ -68,6 +86,37 @@ export default function HomePage() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Click outside handler to close menu
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.menu-container') && !target.closest('.menu-button')) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMenuOpen]);
+
+  // Switch language function
+  const switchLocale = (newLocale: string) => {
+    router.push(pathname, { locale: newLocale });
+    setIsMenuOpen(false);
+  };
+
+  // Pre-fill form with user info when session is available
+  useEffect(() => {
+    if (session?.user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: prev.name || session.user?.name || '',
+      }));
+    }
+  }, [session]);
 
   // 計算總價與總數量
   const totalQty: number = (Object.values(cart) as number[]).reduce((a: number, b: number) => a + b, 0);
@@ -245,7 +294,7 @@ export default function HomePage() {
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-4'
           }`}
       >
-        <div className="max-w-md mx-auto px-4 flex justify-between items-center">
+        <div className="max-w-md mx-auto px-4 flex justify-between items-center relative">
           <div className={`flex items-center space-x-2 transition-colors ${isScrolled ? 'text-slate-800' : 'text-white'}`}>
             <div className={`${isScrolled ? 'bg-orange-600 text-white' : 'bg-white/20 backdrop-blur text-white'} p-2 rounded-xl`}>
               <Flame size={20} className={isScrolled ? '' : 'fill-orange-400 text-orange-400'} />
@@ -253,15 +302,110 @@ export default function HomePage() {
             <h1 className="text-lg font-bold tracking-wide">{t('common.appName')}</h1>
           </div>
 
-          {/* 狀態標籤和語言切換器 */}
+          {/* Auth Button and Menu Button */}
           <div className="flex items-center gap-2">
-            <span className={`text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 transition-all ${isScrolled ? 'bg-green-100 text-green-700' : 'bg-black/30 text-white backdrop-blur-md border border-white/20'
-              }`}>
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              {t('common.status.accepting')}
-            </span>
-            <LanguageSwitcher currentLocale={locale} isScrolled={isScrolled} />
+            <AuthButton isScrolled={isScrolled} />
+
+            {/* Menu Button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className={`menu-button px-3 py-2 rounded-lg flex items-center justify-center transition-colors ${isScrolled ? 'bg-slate-100 text-slate-800 hover:bg-slate-200' : 'bg-white/20 backdrop-blur text-white hover:bg-white/30'}`}
+              aria-label="Menu"
+            >
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
+
+          {/* Menu Dropdown */}
+          {isMenuOpen && (
+            <div className="menu-container absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="p-4 space-y-3">
+                {/* Status Badge */}
+                <div className="flex items-center justify-center pb-3 border-b border-slate-100">
+                  <span className={`text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 ${isScrolled ? 'bg-green-100 text-green-700' : 'bg-green-100 text-green-700'}`}>
+                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    {t('common.status.accepting')}
+                  </span>
+                </div>
+
+                {/* Order History (if logged in) */}
+                {session && (
+                  <button
+                    onClick={() => {
+                      router.push(`/${locale}/orders`);
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full px-4 py-3 rounded-xl flex items-center gap-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                  >
+                    <History size={18} className="text-slate-500" />
+                    <span>{t('common.orderHistory') || 'Order History'}</span>
+                  </button>
+                )}
+
+                {/* Language Switcher */}
+                <button
+                  onClick={() => switchLocale(locale === 'zh' ? 'en' : 'zh')}
+                  className="w-full px-4 py-3 rounded-xl flex items-center gap-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  <Globe size={18} className="text-slate-500" />
+                  <span>{locale === 'zh' ? '中文' : 'English'}</span>
+                  <span className="ml-auto text-xs text-slate-400">{locale === 'zh' ? 'EN' : '中文'}</span>
+                </button>
+
+                {/* Auth Section */}
+                <div className="pt-3 border-t border-slate-100">
+                  {session?.user ? (
+                    <>
+                      <div className="px-4 py-2 mb-2 flex items-center gap-3">
+                        {session.user.image ? (
+                          <Image
+                            src={session.user.image}
+                            alt={session.user.name || 'User'}
+                            width={32}
+                            height={32}
+                            className="rounded-full"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center">
+                            <User size={18} className="text-slate-500" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-slate-800 truncate">
+                            {session.user.name || session.user.email}
+                          </p>
+                          {session.user.email && session.user.name && (
+                            <p className="text-xs text-slate-500 truncate">{session.user.email}</p>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          signOut();
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full px-4 py-3 rounded-xl flex items-center gap-3 text-left text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut size={18} />
+                        <span>Sign Out</span>
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        signIn('google');
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full px-4 py-3 rounded-xl flex items-center gap-3 text-left text-sm font-medium bg-orange-50 text-orange-700 hover:bg-orange-100 transition-colors"
+                    >
+                      <LogIn size={18} />
+                      <span>Sign In</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
@@ -402,78 +546,80 @@ export default function HomePage() {
 
         {/* Checkout Form Section */}
         {totalQty > 0 && (
-          <section className="bg-white p-6 rounded-3xl shadow-lg border border-orange-100 space-y-6 animate-in slide-in-from-bottom-8 duration-700">
-            <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <MapPin className="text-orange-500" size={20} />
-              {t('checkout.title')}
-            </h3>
+          <AuthGuard>
+            <section className="bg-white p-6 rounded-3xl shadow-lg border border-orange-100 space-y-6 animate-in slide-in-from-bottom-8 duration-700">
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <MapPin className="text-orange-500" size={20} />
+                {t('checkout.title')}
+              </h3>
 
-            {/* Custom Toggle */}
-            <div className="bg-slate-100 p-1.5 rounded-2xl flex relative font-medium text-sm">
-              <button
-                type="button"
-                onClick={() => setDeliveryType('pickup')}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-300 shadow-sm ${deliveryType === 'pickup' ? 'bg-white text-slate-900 shadow-md ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
-                  }`}
-              >
-                <Store size={18} /> {t('checkout.pickup')}
-              </button>
-              <button
-                type="button"
-                onClick={() => setDeliveryType('delivery')}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-300 ${deliveryType === 'delivery' ? 'bg-white text-slate-900 shadow-md ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
-                  }`}
-              >
-                <MapPin size={18} /> {t('checkout.delivery')}
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="group">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.name')}</label>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder={t('checkout.form.namePlaceholder')}
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
-                />
+              {/* Custom Toggle */}
+              <div className="bg-slate-100 p-1.5 rounded-2xl flex relative font-medium text-sm">
+                <button
+                  type="button"
+                  onClick={() => setDeliveryType('pickup')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-300 shadow-sm ${deliveryType === 'pickup' ? 'bg-white text-slate-900 shadow-md ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                >
+                  <Store size={18} /> {t('checkout.pickup')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeliveryType('delivery')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-300 ${deliveryType === 'delivery' ? 'bg-white text-slate-900 shadow-md ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                >
+                  <MapPin size={18} /> {t('checkout.delivery')}
+                </button>
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.phone')}</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder={t('checkout.form.phonePlaceholder')}
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
-                />
-              </div>
-
-              {deliveryType === 'delivery' && (
-                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.address')}</label>
-                  <textarea
-                    name="address"
-                    rows={2}
-                    placeholder={t('checkout.form.addressPlaceholder')}
-                    value={formData.address}
+              <div className="space-y-4">
+                <div className="group">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.name')}</label>
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder={t('checkout.form.namePlaceholder')}
+                    value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all resize-none"
-                  ></textarea>
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
+                  />
                 </div>
-              )}
 
-              {submitError && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <p className="text-sm text-red-700 font-medium">{submitError}</p>
+                <div>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.phone')}</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder={t('checkout.form.phonePlaceholder')}
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
+                  />
                 </div>
-              )}
-            </div>
-          </section>
+
+                {deliveryType === 'delivery' && (
+                  <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.address')}</label>
+                    <textarea
+                      name="address"
+                      rows={2}
+                      placeholder={t('checkout.form.addressPlaceholder')}
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all resize-none"
+                    ></textarea>
+                  </div>
+                )}
+
+                {submitError && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <p className="text-sm text-red-700 font-medium">{submitError}</p>
+                  </div>
+                )}
+              </div>
+            </section>
+          </AuthGuard>
         )}
       </main>
 
@@ -490,28 +636,39 @@ export default function HomePage() {
               </div>
             </div>
 
-            <button
-              onClick={handleSubmit}
-              disabled={!formData.name || !formData.phone || isSubmitting}
-              className={`h-12 px-6 rounded-full font-bold flex items-center gap-2 transition-all transform ${(!formData.name || !formData.phone || isSubmitting)
-                ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-orange-500 to-red-600 hover:scale-105 active:scale-95 shadow-lg shadow-orange-900/50'
-                }`}
+            <AuthGuard
+              fallback={
+                <button
+                  disabled
+                  className="h-12 px-6 rounded-full font-bold flex items-center gap-2 bg-slate-700 text-slate-400 cursor-not-allowed"
+                >
+                  <span className="text-sm">Sign In Required</span>
+                </button>
+              }
             >
-              {isSubmitting ? (
-                <>
-                  <span className="text-sm">Submitting...</span>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                </>
-              ) : (!formData.name || !formData.phone) ? (
-                <span className="text-sm">{t('checkout.fillForm')}</span>
-              ) : (
-                <>
-                  <span className="text-sm">{t('checkout.checkout')}</span>
-                  <ArrowRight size={18} />
-                </>
-              )}
-            </button>
+              <button
+                onClick={handleSubmit}
+                disabled={!formData.name || !formData.phone || isSubmitting}
+                className={`h-12 px-6 rounded-full font-bold flex items-center gap-2 transition-all transform ${(!formData.name || !formData.phone || isSubmitting)
+                  ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-orange-500 to-red-600 hover:scale-105 active:scale-95 shadow-lg shadow-orange-900/50'
+                  }`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="text-sm">Submitting...</span>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  </>
+                ) : (!formData.name || !formData.phone) ? (
+                  <span className="text-sm">{t('checkout.fillForm')}</span>
+                ) : (
+                  <>
+                    <span className="text-sm">{t('checkout.checkout')}</span>
+                    <ArrowRight size={18} />
+                  </>
+                )}
+              </button>
+            </AuthGuard>
           </div>
         </div>
       )}

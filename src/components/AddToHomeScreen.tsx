@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, startTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { Download, X, Share } from 'lucide-react';
 
@@ -13,17 +13,26 @@ export default function AddToHomeScreen() {
   const t = useTranslations('addToHome');
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIOSPrompt, setShowIOSPrompt] = useState(false);
-  const [isIOS] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as Window & { MSStream?: unknown }).MSStream;
-  });
-  const [isInstalled, setIsInstalled] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia('(display-mode: standalone)').matches;
-  });
+  const [isIOS, setIsIOS] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Detect iOS/installed status after hydration
+  useEffect(() => {
+    // Batch all state updates together using startTransition
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as Window & { MSStream?: unknown }).MSStream;
+    const installed = window.matchMedia('(display-mode: standalone)').matches;
+
+    startTransition(() => {
+      setIsMounted(true);
+      setIsIOS(ios);
+      setIsInstalled(installed);
+    });
+  }, []);
+
   useEffect(() => {
     // 如果已安装，不需要设置其他内容
-    if (isInstalled) {
+    if (isInstalled || !isMounted) {
       return;
     }
 
@@ -38,7 +47,7 @@ export default function AddToHomeScreen() {
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
-  }, [isInstalled]);
+  }, [isInstalled, isMounted]);
 
   const handleAndroidInstall = async () => {
     if (!deferredPrompt) return;
@@ -51,6 +60,11 @@ export default function AddToHomeScreen() {
       setIsInstalled(true);
     }
   };
+
+  // Don't render anything until after hydration to prevent mismatch
+  if (!isMounted) {
+    return null;
+  }
 
   // 如果已安装，不显示按钮
   if (isInstalled) {

@@ -1,10 +1,71 @@
 'use server';
 
+import { auth, signIn, signOut } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase/server';
-import type { OrderData } from '@/types/order';
+import type { OrderData, Order } from '@/types/order';
+
+export async function getUserSession() {
+  const session = await auth();
+  return session;
+}
+
+export async function signInWithGoogle() {
+  await signIn('google');
+}
+
+export async function signOutUser() {
+  await signOut();
+}
+
+export async function getUserOrders(): Promise<{ success: boolean; data?: Order[]; error?: string }> {
+  try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        error: 'Not authenticated'
+      };
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('orders')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to fetch orders'
+      };
+    }
+
+    return {
+      success: true,
+      data: data as Order[]
+    };
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
+    };
+  }
+}
 
 export async function submitOrder(orderData: OrderData) {
   try {
+    // Require authentication
+    const session = await auth();
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        error: 'Authentication required. Please sign in to place an order.'
+      };
+    }
+
     // Validate required fields
     if (!orderData.customer_name || !orderData.phone_number) {
       return {
@@ -28,7 +89,7 @@ export async function submitOrder(orderData: OrderData) {
       };
     }
 
-    // Insert order into Supabase
+    // Insert order into Supabase with user_id
     const { data, error } = await supabaseAdmin
       .from('orders')
       .insert([
@@ -40,7 +101,8 @@ export async function submitOrder(orderData: OrderData) {
           items: orderData.items,
           total_amount: orderData.total_amount,
           notes: orderData.notes || null,
-          status: 'pending'
+          status: 'pending',
+          user_id: session.user.id
         }
       ])
       .select()
