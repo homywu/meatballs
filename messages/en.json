@@ -44,7 +44,7 @@
     "delivery": "Home Delivery",
     "form": {
       "name": "Your Name",
-      "namePlaceholder": "e.g. Samson",
+      "namePlaceholder": "e.g. John Doe",
       "phone": "Phone Number (for e-Transfer verification)",
       "phonePlaceholder": "403-XXX-XXXX",
       "address": "Delivery Address",

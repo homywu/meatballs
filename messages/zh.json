@@ -44,7 +44,7 @@
     "delivery": "送貨上門",
     "form": {
       "name": "您的稱呼",
-      "namePlaceholder": "e.g. Samson",
+      "namePlaceholder": "e.g. John Doe",
       "phone": "電話號碼 (e-Transfer 對賬用)",
       "phonePlaceholder": "403-XXX-XXXX",
       "address": "送貨地址",

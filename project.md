@@ -63,7 +63,7 @@ To avoid database lookups for product definitions, use a constant config file.
 5. Submission: User clicks "Submit Order".
 6. Success State (Critical):
    - Clear message: "Order Received!"
-   - Payment Instruction: "Please e-Transfer $[Total] to <samson@email.com>."
+   - Payment Instruction: "Please e-Transfer $[Total] to <carfield.ni@gmail.com>."
    - Reminder: "Put your phone number in the e-Transfer memo."
    - No automatic redirect. Let the user stare at the payment info.
 

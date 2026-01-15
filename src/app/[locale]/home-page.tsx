@@ -16,6 +16,8 @@ import {
   ArrowRight
 } from 'lucide-react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { submitOrder } from './actions';
+import type { OrderItem } from '@/types/order';
 
 export default function HomePage() {
   const t = useTranslations();
@@ -55,6 +57,8 @@ export default function HomePage() {
   const [formData, setFormData] = useState({ name: '', phone: '', address: '', notes: '' });
   const [copySuccess, setCopySuccess] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // 監聽滾動以改變 Header 樣式
   useEffect(() => {
@@ -66,15 +70,15 @@ export default function HomePage() {
   }, []);
 
   // 計算總價與總數量
-  const totalQty = Object.values(cart).reduce((a, b) => a + b, 0);
-  const totalPrice = Object.entries(cart).reduce((total, [id, qty]: [string, number]) => {
-    const product = PRODUCTS.find(p => p.id === id);
+  const totalQty: number = (Object.values(cart) as number[]).reduce((a: number, b: number) => a + b, 0);
+  const totalPrice: number = (Object.entries(cart) as [string, number][]).reduce((total: number, [id, qty]: [string, number]) => {
+    const product = PRODUCTS.find((p: { id: string }) => p.id === id);
     return total + (product ? product.price * qty : 0);
   }, 0);
 
   // 處理加減購物車
   const updateCart = (id: string, delta: number) => {
-    setCart(prev => {
+    setCart((prev: Record<string, number>) => {
       const currentQty = prev[id] || 0;
       const newQty = Math.max(0, currentQty + delta);
       if (newQty === 0) {
@@ -88,27 +92,71 @@ export default function HomePage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev: { name: string; phone: string; address: string; notes: string }) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setTimeout(() => {
-      setStep('success');
-      window.scrollTo(0, 0);
-    }, 800);
+
+    // Reset error state
+    setSubmitError(null);
+    setIsSubmitting(true);
+
+    try {
+      // Transform cart data into OrderItem format
+      const items: OrderItem[] = Object.entries(cart)
+        .map(([id, quantity]) => {
+          const product = PRODUCTS.find((p: { id: string }) => p.id === id);
+          if (!product) return null;
+          return {
+            id: product.id,
+            name: product.name,
+            quantity,
+            price: product.price
+          };
+        })
+        .filter((item): item is OrderItem => item !== null);
+
+      // Prepare order data
+      const orderData = {
+        customer_name: formData.name,
+        phone_number: formData.phone,
+        delivery_method: deliveryType === 'pickup' ? 'pickup_sage_hill' as const : 'delivery' as const,
+        delivery_address: deliveryType === 'delivery' ? formData.address : undefined,
+        items,
+        total_amount: totalPrice,
+        notes: formData.notes || undefined
+      };
+
+      // Submit order via Server Action
+      const result = await submitOrder(orderData);
+
+      if (result.success) {
+        // Only show success page if order was successfully saved
+        setStep('success');
+        window.scrollTo(0, 0);
+      } else {
+        // Show error message
+        setSubmitError(result.error || 'Failed to submit order. Please try again.');
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      setSubmitError(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.');
+      setIsSubmitting(false);
+    }
   };
 
   const copyToClipboard = async () => {
     try {
       // Modern clipboard API
-      await navigator.clipboard.writeText('samson@email.com');
+      await navigator.clipboard.writeText('carfield.ni@gmail.com');
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     } catch {
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
-      textArea.value = 'samson@email.com';
+      textArea.value = 'carfield.ni@gmail.com';
       textArea.style.position = 'fixed';
       textArea.style.opacity = '0';
       document.body.appendChild(textArea);
@@ -155,7 +203,7 @@ export default function HomePage() {
               {t('success.step1')}
             </p>
             <div className="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 group hover:border-orange-300 transition-colors">
-              <code className="text-slate-800 font-mono text-lg font-medium">samson@email.com</code>
+              <code className="text-slate-800 font-mono text-lg font-medium">carfield.ni@gmail.com</code>
               <button
                 onClick={copyToClipboard}
                 className="text-sm bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 text-slate-600 hover:text-orange-600 hover:border-orange-200 active:scale-95 transition flex items-center gap-1"
@@ -235,12 +283,12 @@ export default function HomePage() {
             {t('hero.badge')}
           </span>
           <h2 className="text-4xl font-extrabold text-white leading-tight mb-2 drop-shadow-lg">
-            {t('hero.title').split('\n').map((line, i, arr) => {
+            {t('hero.title').split('\n').map((line: string, i: number, arr: string[]) => {
               const highlight = t('hero.highlight');
               const parts = line.split(highlight);
               return (
                 <React.Fragment key={i}>
-                  {parts.map((part, j) => (
+                  {parts.map((part: string, j: number) => (
                     <React.Fragment key={j}>
                       {part}
                       {j < parts.length - 1 && <span className="text-orange-400">{highlight}</span>}
@@ -282,7 +330,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-6">
-            {PRODUCTS.map(product => (
+            {PRODUCTS.map((product: { id: string; name: string; desc: string; price: number; tag: string; image: string }) => (
               <div key={product.id} className="group bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-100">
                 {/* Image Area */}
                 <div className="relative h-48 overflow-hidden">
@@ -418,6 +466,12 @@ export default function HomePage() {
                   ></textarea>
                 </div>
               )}
+
+              {submitError && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <p className="text-sm text-red-700 font-medium">{submitError}</p>
+                </div>
+              )}
             </div>
           </section>
         )}
@@ -438,13 +492,18 @@ export default function HomePage() {
 
             <button
               onClick={handleSubmit}
-              disabled={!formData.name || !formData.phone}
-              className={`h-12 px-6 rounded-full font-bold flex items-center gap-2 transition-all transform ${(!formData.name || !formData.phone)
+              disabled={!formData.name || !formData.phone || isSubmitting}
+              className={`h-12 px-6 rounded-full font-bold flex items-center gap-2 transition-all transform ${(!formData.name || !formData.phone || isSubmitting)
                 ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
                 : 'bg-gradient-to-r from-orange-500 to-red-600 hover:scale-105 active:scale-95 shadow-lg shadow-orange-900/50'
                 }`}
             >
-              {(!formData.name || !formData.phone) ? (
+              {isSubmitting ? (
+                <>
+                  <span className="text-sm">Submitting...</span>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </>
+              ) : (!formData.name || !formData.phone) ? (
                 <span className="text-sm">{t('checkout.fillForm')}</span>
               ) : (
                 <>
