@@ -3,18 +3,24 @@
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { signIn, signOut } from 'next-auth/react';
+import type { Session } from 'next-auth';
 import { User, LogOut, LogIn, X } from 'lucide-react';
 import Image from 'next/image';
 
 interface AuthButtonProps {
   isScrolled?: boolean;
+  session?: Session | null;
 }
 
-export default function AuthButton({ isScrolled = false }: AuthButtonProps) {
-  const { data: session, status } = useSession();
+export default function AuthButton({ isScrolled = false, session: sessionProp }: AuthButtonProps) {
+  // Only use useSession if session prop is not provided (fallback for other usages)
+  const { data: sessionFromHook, status } = useSession();
+  const session = sessionProp ?? sessionFromHook;
+  // If session prop is provided, we assume it's ready (not loading)
+  const isLoading = sessionProp === undefined ? status === 'loading' : false;
   const [showSignOutModal, setShowSignOutModal] = useState(false);
 
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       <div className={`px-3 py-1.5 rounded-lg ${isScrolled ? 'bg-slate-100' : 'bg-white/20 backdrop-blur'}`}>
         <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin"></div>

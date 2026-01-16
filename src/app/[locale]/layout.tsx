@@ -3,6 +3,7 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { SessionProvider } from 'next-auth/react';
 import { routing } from '@/i18n/routing';
+import { auth } from '@/lib/auth';
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
@@ -57,6 +58,10 @@ export default async function LocaleLayout({
   // side is the easiest way to get started
   const messages = await getMessages({ locale });
 
+  // Fetch session server-side once and pass to SessionProvider
+  // This prevents multiple client-side API calls
+  const session = await auth();
+
   const langAttr = locale === 'zh' ? 'zh-CN' : 'en';
 
   return (
@@ -71,7 +76,11 @@ export default async function LocaleLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider>
+        <SessionProvider
+          session={session}
+          refetchInterval={0}
+          refetchOnWindowFocus={false}
+        >
           <NextIntlClientProvider messages={messages}>
             {children}
           </NextIntlClientProvider>

@@ -296,15 +296,21 @@ export default function HomePage() {
       >
         <div className="max-w-md mx-auto px-4 flex justify-between items-center relative">
           <div className={`flex items-center space-x-2 transition-colors ${isScrolled ? 'text-slate-800' : 'text-white'}`}>
-            <div className={`${isScrolled ? 'bg-orange-600 text-white' : 'bg-white/20 backdrop-blur text-white'} p-2 rounded-xl`}>
-              <Flame size={20} className={isScrolled ? '' : 'fill-orange-400 text-orange-400'} />
+            <div>
+              <Image
+                src="/logo_192.png"
+                alt="Logo"
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-xl"
+              />
             </div>
             <h1 className="text-lg font-bold tracking-wide">{t('common.appName')}</h1>
           </div>
 
           {/* Auth Button and Menu Button */}
           <div className="flex items-center gap-2">
-            <AuthButton isScrolled={isScrolled} />
+            <AuthButton isScrolled={isScrolled} session={session} />
 
             {/* Menu Button */}
             <button
@@ -546,7 +552,7 @@ export default function HomePage() {
 
         {/* Checkout Form Section */}
         {totalQty > 0 && (
-          <AuthGuard>
+          <AuthGuard session={session}>
             <section className="bg-white p-6 rounded-3xl shadow-lg border border-orange-100 space-y-6 animate-in slide-in-from-bottom-8 duration-700">
               <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <MapPin className="text-orange-500" size={20} />
@@ -637,6 +643,7 @@ export default function HomePage() {
             </div>
 
             <AuthGuard
+              session={session}
               fallback={
                 <button
                   disabled

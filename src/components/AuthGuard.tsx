@@ -2,19 +2,25 @@
 
 import { useSession } from 'next-auth/react';
 import { signIn } from 'next-auth/react';
+import type { Session } from 'next-auth';
 import { usePathname } from 'next/navigation';
 import { LogIn, Lock } from 'lucide-react';
 
 interface AuthGuardProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
+  session?: Session | null;
 }
 
-export default function AuthGuard({ children, fallback }: AuthGuardProps) {
-  const { data: session, status } = useSession();
+export default function AuthGuard({ children, fallback, session: sessionProp }: AuthGuardProps) {
+  // Only use useSession if session prop is not provided (fallback for other usages)
+  const { data: sessionFromHook, status } = useSession();
+  const session = sessionProp ?? sessionFromHook;
+  // If session prop is provided, we assume it's ready (not loading)
+  const isLoading = sessionProp === undefined ? status === 'loading' : false;
   const pathname = usePathname();
 
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
