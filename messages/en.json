@@ -4,7 +4,8 @@
     "tagline": "CRAFT & CHAO",
     "status": {
       "accepting": "Accepting Orders"
-    }
+    },
+    "orderHistory": "Order History"
   },
   "hero": {
     "badge": "Sage Hill's Most Authentic",

@@ -4,7 +4,8 @@
     "tagline": "CRAFT & CHAO",
     "status": {
       "accepting": "接單中"
-    }
+    },
+    "orderHistory": "歷史訂單"
   },
   "hero": {
     "badge": "Sage Hill 最正宗",
