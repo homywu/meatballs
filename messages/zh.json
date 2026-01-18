@@ -5,7 +5,9 @@
     "status": {
       "accepting": "接單中"
     },
-    "orderHistory": "歷史訂單"
+    "orderHistory": "歷史訂單",
+    "home": "首頁",
+    "orders": "訂單"
   },
   "hero": {
     "badge": "Sage Hill 最正宗",

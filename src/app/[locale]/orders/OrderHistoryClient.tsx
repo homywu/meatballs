@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowLeft, Package, Calendar, DollarSign, MapPin, Store, CheckCircle, Clock, XCircle } from 'lucide-react';
+// Footer removed
 import type { Order } from '@/types/order';
 
 interface OrderHistoryClientProps {

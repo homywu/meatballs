@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { SessionProvider } from 'next-auth/react';
 import { routing } from '@/i18n/routing';
 import { auth } from '@/lib/auth';
+import Header from '@/components/Header';
+import BottomNav from '@/components/BottomNav';
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
@@ -82,7 +84,11 @@ export default async function LocaleLayout({
           refetchOnWindowFocus={false}
         >
           <NextIntlClientProvider messages={messages}>
-            {children}
+            <Header session={session} />
+            <div className="pb-4">
+              {children}
+            </div>
+            <BottomNav />
           </NextIntlClientProvider>
         </SessionProvider>
       </body>

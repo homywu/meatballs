@@ -13,12 +13,12 @@ import { routing } from '@/i18n/routing';
 import type { OrderItem } from '@/types/order';
 
 // Components
-import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import ProductCard from '@/components/ProductCard';
 import CheckoutForm from '@/components/CheckoutForm';
 import CheckoutBar from '@/components/CheckoutBar';
 import SuccessView from '@/components/SuccessView';
+
 
 const navigation = createNavigation(routing);
 
@@ -59,21 +59,14 @@ export default function HomePage() {
   const [step, setStep] = useState('menu');
   const [deliveryType, setDeliveryType] = useState('pickup');
   const [formData, setFormData] = useState({ name: '', phone: '', address: '', notes: '' });
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const router = navigation.useRouter();
   const pathname = navigation.usePathname();
 
-  // 監聽滾動以改變 Header 樣式
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // Scroll listener removed
+
 
   // Switch language function handled in Header now
   // removed switchLocale
@@ -178,12 +171,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#FDFBF7] pb-32 font-sans selection:bg-orange-200">
 
       {/* Immersive Header */}
-      <Header
-        isScrolled={isScrolled}
-        session={session}
-        isMenuOpen={isMenuOpen}
-        setIsMenuOpen={setIsMenuOpen}
-      />
+      {/* Header removed - in Layout */}
 
       {/* Hero Section */}
       <HeroSection />
@@ -229,7 +217,6 @@ export default function HomePage() {
           </AuthGuard>
         )}
       </main>
-
       {/* Sticky Checkout Bar */}
       {totalQty > 0 && (
         <CheckoutBar

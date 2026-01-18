@@ -24,14 +24,14 @@ export default function CheckoutBar({
     const t = useTranslations();
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 safe-area-bottom">
-            <div className="max-w-2xl mx-auto bg-slate-900/95 backdrop-blur-lg text-white p-2 pl-6 pr-2 rounded-[2rem] shadow-2xl flex items-center justify-between border border-white/10 animate-in slide-in-from-bottom-full duration-500">
+        <div className="fixed bottom-[80px] left-0 right-0 z-40 p-4 safe-area-bottom">
+            <div className="max-w-2xl mx-auto bg-white/95 backdrop-blur-lg text-slate-800 p-2 pl-6 pr-2 rounded-[2rem] shadow-2xl flex items-center justify-between border border-slate-200 ring-1 ring-slate-900/5 animate-in slide-in-from-bottom-2 duration-500">
 
                 <div className="flex flex-col">
-                    <span className="text-xs text-slate-400 font-medium">{totalQty} {t('checkout.items')}</span>
+                    <span className="text-xs text-slate-500 font-medium">{totalQty} {t('checkout.items')}</span>
                     <div className="flex items-baseline gap-1">
-                        <span className="text-lg font-bold text-orange-400">$</span>
-                        <span className="text-2xl font-bold tracking-tight">{totalPrice}</span>
+                        <span className="text-lg font-bold text-orange-600">$</span>
+                        <span className="text-2xl font-bold tracking-tight text-slate-900">{totalPrice}</span>
                     </div>
                 </div>
 

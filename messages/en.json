@@ -5,7 +5,9 @@
     "status": {
       "accepting": "Accepting Orders"
     },
-    "orderHistory": "Order History"
+    "orderHistory": "Order History",
+    "home": "Home",
+    "orders": "Orders"
   },
   "hero": {
     "badge": "Sage Hill's Most Authentic",

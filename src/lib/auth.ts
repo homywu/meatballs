@@ -29,6 +29,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 email: user.email,
                 name: user.name || null,
                 image: user.image || null,
+                role: 'user', // Default role for new users
               },
             ]);
 
@@ -59,12 +60,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           const { data: user } = await supabaseAdmin
             .from('users')
-            .select('id')
+            .select('id, role')
             .eq('email', session.user.email)
             .single();
 
           if (user) {
             session.user.id = user.id;
+            session.user.role = user.role as 'user' | 'admin';
           }
         } catch (error) {
           console.error('Error fetching user ID:', error);
