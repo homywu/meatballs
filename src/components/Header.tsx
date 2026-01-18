@@ -41,27 +41,19 @@ export default function Header({
     // On Order page bg is white -> text-white is invisible.
     // I should check if pathname is home.
 
+    // Force isScrolled to true if not on home page to ensure visibility on white background
     const isHomePage = pathname === '/' || pathname === '';
-    // Note: pathname from next-intl might handle locale. usePathname returns path without locale prefix usually? 
-    // Let's check next-intl docs or assume behavior. typically it abstracts locale.
-    // If unsure, safe to default to scroll behavior but maybe force 'scrolled' state style if not home?
 
-    // Better: Always use scroll effect, but if NOT home, text should be dark initially?
-    // Let's stick to simple scroll for now. If user is on Order page, they scroll, it becomes white.
-    // But initially transparent on white bg? Bad.
-    // Let's FORCE isScrolled true if not Home page?
-    // Or add a strictly white header for non-home.
-
-    // Let's rely on scroll for now, but I suspect I might need to tweak this.
-    // Actually, let's keep it simple.
+    // Effective state for styling
+    const showBackground = isScrolled || !isHomePage;
 
     return (
         <header
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-4'
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${showBackground ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-4'
                 }`}
         >
             <div className="max-w-2xl mx-auto px-4 flex justify-between items-center relative">
-                <div className={`flex items-center space-x-2 transition-colors ${isScrolled ? 'text-slate-800' : 'text-white'}`}>
+                <div className={`flex items-center space-x-2 transition-colors ${showBackground ? 'text-slate-800' : 'text-white'}`}>
                     <div>
                         <Image
                             src="/logo_192.png"
@@ -75,8 +67,8 @@ export default function Header({
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <LanguageSwitcher currentLocale={locale} isScrolled={isScrolled} />
-                    <AuthButton isScrolled={isScrolled} session={session} />
+                    <LanguageSwitcher currentLocale={locale} isScrolled={showBackground} />
+                    <AuthButton isScrolled={showBackground} session={session} />
                 </div>
             </div>
         </header>

@@ -57,20 +57,9 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
   return (
     <div className="min-h-screen bg-[#FDFBF7] pb-8">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-md mx-auto px-4 py-4 flex items-center gap-4">
-          <button
-            onClick={() => router.push(`/${locale}`)}
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft size={20} className="text-slate-800" />
-          </button>
-          <h1 className="text-xl font-bold text-slate-800">Order History</h1>
-        </div>
-      </header>
-
       {/* Content */}
-      <main className="max-w-md mx-auto px-4 py-6">
+      <main className="max-w-md mx-auto px-4 py-6 pt-24">
+        <h1 className="text-2xl font-bold text-slate-800 mb-6">Order History</h1>
         {error ? (
           <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
             <p className="text-red-700 font-medium">{error}</p>
