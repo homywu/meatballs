@@ -9,6 +9,22 @@
     "home": "Home",
     "orders": "Orders"
   },
+  "orders": {
+    "title": "Order History",
+    "empty": {
+      "title": "No Orders Yet",
+      "description": "You haven't placed any orders yet.",
+      "action": "Start Shopping"
+    },
+    "status": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "total": "Total",
+    "note": "Note"
+  },
   "hero": {
     "badge": "Sage Hill's Most Authentic",
     "title": "Every meatball is a\nsoul collision.",
@@ -55,7 +71,13 @@
     },
     "items": "items",
     "checkout": "Checkout",
-    "fillForm": "Please Fill Form"
+    "fillForm": "Please Fill Form",
+    "signInRequired": "Sign In Required",
+    "submitting": "Submitting...",
+    "errors": {
+      "submit": "Failed to submit order. Please try again.",
+      "unexpected": "An unexpected error occurred. Please try again."
+    }
   },
   "success": {
     "title": "Order Received!",

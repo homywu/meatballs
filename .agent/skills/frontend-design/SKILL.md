@@ -50,6 +50,7 @@ Create a living interface, not a static page.
 - **Tailwind CSS**: Use utility classes for almost everything.
 - **Icons**: Lucide React (`size={14}` to `size={20}`).
 - **Images**: High-quality food photography with gradient overlays for text readability.
+- **Internationalization (i18n)**: All user-facing text must be internationalized using `next-intl`. **Never** hardcode strings; use translation keys (e.g., `t('menu.title')`).
 
 ## 🚫 Anti-Patterns (What to Avoid)
 - **Generic Aesthetics**: Do not use "startup blue" or default Bootstrap/Material styles.

@@ -42,7 +42,7 @@ export default function CheckoutBar({
                             disabled
                             className="h-12 px-6 rounded-full font-bold flex items-center gap-2 bg-slate-700 text-slate-400 cursor-not-allowed"
                         >
-                            <span className="text-sm">Sign In Required</span>
+                            <span className="text-sm">{t('checkout.signInRequired')}</span>
                         </button>
                     }
                 >
@@ -56,7 +56,7 @@ export default function CheckoutBar({
                     >
                         {isSubmitting ? (
                             <>
-                                <span className="text-sm">Submitting...</span>
+                                <span className="text-sm">{t('checkout.submitting')}</span>
                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             </>
                         ) : (!canSubmit) ? (

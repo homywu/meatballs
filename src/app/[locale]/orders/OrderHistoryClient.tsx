@@ -59,7 +59,7 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
       {/* Header */}
       {/* Content */}
       <main className="max-w-md mx-auto px-4 py-6 pt-24">
-        <h1 className="text-2xl font-bold text-slate-800 mb-6">Order History</h1>
+        <h1 className="text-2xl font-bold text-slate-800 mb-6">{t('orders.title')}</h1>
         {error ? (
           <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
             <p className="text-red-700 font-medium">{error}</p>
@@ -72,14 +72,14 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
               </div>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-800 mb-2">No Orders Yet</h2>
-              <p className="text-slate-500">You haven't placed any orders yet.</p>
+              <h2 className="text-xl font-bold text-slate-800 mb-2">{t('orders.empty.title')}</h2>
+              <p className="text-slate-500">{t('orders.empty.description')}</p>
             </div>
             <button
               onClick={() => router.push(`/${locale}`)}
               className="mt-6 bg-orange-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors"
             >
-              Start Shopping
+              {t('orders.empty.action')}
             </button>
           </div>
         ) : (
@@ -105,7 +105,7 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
                   </div>
                   <div className={`flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold ${getStatusColor(order.status)}`}>
                     {getStatusIcon(order.status)}
-                    <span className="capitalize">{order.status}</span>
+                    <span className="capitalize">{t(`orders.status.${order.status}`)}</span>
                   </div>
                 </div>
 
@@ -114,7 +114,7 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
                   {order.delivery_method === 'pickup_sage_hill' ? (
                     <>
                       <Store className="w-4 h-4 text-slate-400 mt-0.5" />
-                      <span className="text-slate-600">Pickup at Sage Hill</span>
+                      <span className="text-slate-600">{t('checkout.pickup')}</span>
                     </>
                   ) : (
                     <>
@@ -129,7 +129,7 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
                   {order.items.map((item, index) => (
                     <div key={index} className="flex items-center justify-between text-sm">
                       <span className="text-slate-700">
-                        {item.name} × {item.quantity}
+                        {item.product_id ? t(`menu.products.${item.product_id}.name`) : item.name} × {item.quantity}
                       </span>
                       <span className="font-medium text-slate-800">
                         ${(item.price * item.quantity).toFixed(2)}
@@ -142,7 +142,7 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
                 <div className="flex items-center justify-between pt-4 border-t border-slate-200">
                   <div className="flex items-center gap-2">
                     <DollarSign className="w-5 h-5 text-orange-600" />
-                    <span className="font-bold text-slate-800">Total</span>
+                    <span className="font-bold text-slate-800">{t('orders.total')}</span>
                   </div>
                   <span className="text-2xl font-bold text-orange-600">
                     ${order.total_amount.toFixed(2)}
@@ -152,7 +152,7 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
                 {/* Notes */}
                 {order.notes && (
                   <div className="pt-2 text-sm text-slate-600 italic">
-                    Note: {order.notes}
+                    {t('orders.note')}: {order.notes}
                   </div>
                 )}
               </div>

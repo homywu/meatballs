@@ -9,6 +9,22 @@
     "home": "首頁",
     "orders": "訂單"
   },
+  "orders": {
+    "title": "歷史訂單",
+    "empty": {
+      "title": "暫無訂單",
+      "description": "您還沒有下過單哦",
+      "action": "去逛逛"
+    },
+    "status": {
+      "pending": "待處理",
+      "paid": "已支付",
+      "completed": "已完成",
+      "cancelled": "已取消"
+    },
+    "total": "總計",
+    "note": "備註"
+  },
   "hero": {
     "badge": "Sage Hill 最正宗",
     "title": "每一顆肉丸，\n都是靈魂的撞擊。",
@@ -55,7 +71,13 @@
     },
     "items": "件商品",
     "checkout": "去買單",
-    "fillForm": "請填資料"
+    "fillForm": "請填資料",
+    "signInRequired": "請先登錄",
+    "submitting": "提交中...",
+    "errors": {
+      "submit": "提交訂單失敗，請重試。",
+      "unexpected": "發生意外錯誤，請重試。"
+    }
   },
   "success": {
     "title": "訂單已收到！",

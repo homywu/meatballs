@@ -149,12 +149,12 @@ export default function HomePage() {
         window.scrollTo(0, 0);
       } else {
         // Show error message
-        setSubmitError(result.error || 'Failed to submit order. Please try again.');
+        setSubmitError(result.error || t('checkout.errors.submit'));
         setIsSubmitting(false);
       }
     } catch (error) {
       console.error('Error submitting order:', error);
-      setSubmitError(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.');
+      setSubmitError(error instanceof Error ? error.message : t('checkout.errors.unexpected'));
       setIsSubmitting(false);
     }
   };
