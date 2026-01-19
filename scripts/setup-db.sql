@@ -24,6 +24,7 @@ CREATE TABLE orders (
   total_amount DECIMAL(10, 2) NOT NULL,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'completed')),
   notes TEXT,
+  reference_number TEXT UNIQUE,
   user_id UUID REFERENCES users(id) ON DELETE SET NULL
 );
 
@@ -46,6 +47,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_phone_number ON orders(phone_number);
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
 CREATE INDEX IF NOT EXISTS idx_order_items_product_id ON order_items(product_id);
+CREATE INDEX IF NOT EXISTS idx_orders_reference_number ON orders(reference_number);
 
 -- Add comments to tables
 COMMENT ON TABLE users IS 'Stores authenticated user accounts with role-based access';

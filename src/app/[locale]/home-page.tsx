@@ -61,6 +61,7 @@ export default function HomePage() {
   const [formData, setFormData] = useState({ name: '', phone: '', address: '', notes: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [lastOrderRef, setLastOrderRef] = useState<string | undefined>(undefined);
 
   const router = navigation.useRouter();
   const pathname = navigation.usePathname();
@@ -145,6 +146,7 @@ export default function HomePage() {
 
       if (result.success) {
         // Only show success page if order was successfully saved
+        setLastOrderRef(result.data.reference_number);
         setStep('success');
         window.scrollTo(0, 0);
       } else {
@@ -162,7 +164,7 @@ export default function HomePage() {
   // 1. 成功頁面 (Success View)
   if (step === 'success') {
     return (
-      <SuccessView totalPrice={totalPrice} phone={formData.phone} />
+      <SuccessView totalPrice={totalPrice} phone={formData.phone} referenceNumber={lastOrderRef} />
     );
   }
 

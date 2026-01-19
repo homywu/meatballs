@@ -5,32 +5,34 @@ import { CheckCircle, Copy, Star } from 'lucide-react';
 interface SuccessViewProps {
     totalPrice: number;
     phone: string;
+    referenceNumber?: string;
 }
 
-export default function SuccessView({ totalPrice, phone }: SuccessViewProps) {
+export default function SuccessView({ totalPrice, phone, referenceNumber }: SuccessViewProps) {
     const t = useTranslations();
     const [copySuccess, setCopySuccess] = useState(false);
+    const [copyRefSuccess, setCopyRefSuccess] = useState(false);
 
-    const copyToClipboard = async () => {
+    const copyToClipboard = async (text: string, setSuccess: (v: boolean) => void) => {
         try {
-            // Modern clipboard API
-            await navigator.clipboard.writeText('carfield.ni@gmail.com');
-            setCopySuccess(true);
-            setTimeout(() => setCopySuccess(false), 2000);
+            await navigator.clipboard.writeText(text);
+            setSuccess(true);
+            setTimeout(() => setSuccess(false), 2000);
         } catch {
-            // Fallback for older browsers
+            // Fallback omitted for brevity/simplicity as most modern browsers support API
+            // Or keeping simple alert or just console
             const textArea = document.createElement('textarea');
-            textArea.value = 'carfield.ni@gmail.com';
+            textArea.value = text;
             textArea.style.position = 'fixed';
             textArea.style.opacity = '0';
             document.body.appendChild(textArea);
             textArea.select();
             try {
                 document.execCommand('copy');
-                setCopySuccess(true);
-                setTimeout(() => setCopySuccess(false), 2000);
-            } catch (fallbackErr) {
-                console.error('Copy failed', fallbackErr);
+                setSuccess(true);
+                setTimeout(() => setSuccess(false), 2000);
+            } catch (err) {
+                console.error('Copy failed', err);
             }
             document.body.removeChild(textArea);
         }
@@ -65,7 +67,7 @@ export default function SuccessView({ totalPrice, phone }: SuccessViewProps) {
                     <div className="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 group hover:border-orange-300 transition-colors">
                         <code className="text-slate-800 font-mono text-lg font-medium">carfield.ni@gmail.com</code>
                         <button
-                            onClick={copyToClipboard}
+                            onClick={() => copyToClipboard('carfield.ni@gmail.com', setCopySuccess)}
                             className="text-sm bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 text-slate-600 hover:text-orange-600 hover:border-orange-200 active:scale-95 transition flex items-center gap-1"
                         >
                             {copySuccess ? <CheckCircle size={14} /> : <Copy size={14} />}
@@ -77,12 +79,31 @@ export default function SuccessView({ totalPrice, phone }: SuccessViewProps) {
                         <span className="bg-slate-800 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">2</span>
                         {t('success.step2')}
                     </p>
+
+                    {referenceNumber && (
+                        <div className="flex items-center justify-between bg-yellow-50 p-4 rounded-xl border border-yellow-200 mb-2">
+                            <span className="text-yellow-800 font-bold ml-1">REF:</span>
+                            <code className="text-slate-900 font-mono text-xl font-black tracking-wider">{referenceNumber}</code>
+                            <button
+                                onClick={() => copyToClipboard(referenceNumber, setCopyRefSuccess)}
+                                className="text-sm bg-white px-3 py-1.5 rounded-lg shadow-sm border border-yellow-200 text-yellow-700 hover:text-yellow-800 active:scale-95 transition flex items-center gap-1"
+                            >
+                                {copyRefSuccess ? <CheckCircle size={14} /> : <Copy size={14} />}
+                                {copyRefSuccess ? t('success.copied') : t('success.copy')}
+                            </button>
+                        </div>
+                    )}
+
                     <div className="bg-red-50 p-3 rounded-xl border border-red-100 flex items-start gap-2">
                         <div className="mt-0.5"><Star className="w-4 h-4 text-red-500 fill-red-500" /></div>
                         <p className="text-sm text-red-700">
-                            {t('success.step2Note', { phone })}
+                            {t('success.step2Note', { ref: referenceNumber || phone })}
                         </p>
                     </div>
+
+                    <p className="text-xs text-center text-slate-400 mt-4 px-4">
+                        {t('success.contactSupport')}
+                    </p>
                 </div>
 
                 <button

@@ -1,9 +1,10 @@
 'use client';
 
+import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { ArrowLeft, Package, Calendar, DollarSign, MapPin, Store, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { ArrowLeft, Package, Calendar, DollarSign, MapPin, Store, CheckCircle, Clock, XCircle, Copy } from 'lucide-react';
 // Footer removed
 import type { Order } from '@/types/order';
 
@@ -16,6 +17,17 @@ interface OrderHistoryClientProps {
 export default function OrderHistoryClient({ orders, error, locale }: OrderHistoryClientProps) {
   const t = useTranslations();
   const router = useRouter();
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyToClipboard = async (text: string, orderId: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(orderId);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy!', err);
+    }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -95,8 +107,26 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
                     <div className="flex items-center gap-2 mb-2">
                       <Package className="w-5 h-5 text-slate-400" />
                       <span className="text-sm font-mono text-slate-500">
-                        {order.id.slice(0, 8)}...
+                        Order:
                       </span>
+                      {order.reference_number && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full font-mono font-bold">
+                            REF: {order.reference_number}
+                          </span>
+                          <button
+                            onClick={() => copyToClipboard(order.reference_number!, order.id)}
+                            className="p-1 hover:bg-slate-100 rounded-md transition-colors text-slate-400 hover:text-orange-600"
+                            title={t('success.copy')}
+                          >
+                            {copiedId === order.id ? (
+                              <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-2 text-sm text-slate-600">
                       <Calendar className="w-4 h-4" />

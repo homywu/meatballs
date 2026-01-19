@@ -84,11 +84,13 @@
     "subtitle": "準備好享受美味肉丸了嗎？😋",
     "total": "訂單總額 (Total)",
     "step1": "請 e-Transfer 至：",
-    "step2": "備註電話號碼：",
-    "step2Note": "請務必在 Message 備註 {phone}，方便我們核對您的訂單！",
+    "step2": "在轉帳訊息中填寫參考編號",
+    "step2Note": "請在 E-transfer 訊息欄填寫 {ref}，以便我們即時確認您的付款。",
+    "refNumber": "參考編號",
     "copy": "Copy",
     "copied": "Copied",
-    "backHome": "返回首頁"
+    "backHome": "返回首頁",
+    "contactSupport": "忘記入備註參考編號？請聯繫我們的微信確認款項哦～"
   },
   "addToHome": {
     "title": "添加到主屏幕",
