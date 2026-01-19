@@ -24,6 +24,7 @@ export interface Order extends OrderData {
   id: string;
   created_at: string;
   status: 'pending' | 'paid' | 'completed';
+  reference_number?: string;
   user_id?: string;
 }
 

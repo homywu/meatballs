@@ -84,11 +84,13 @@
     "subtitle": "Ready to enjoy delicious meatballs? 😋",
     "total": "Order Total",
     "step1": "Please e-Transfer to:",
-    "step2": "Note Phone Number:",
-    "step2Note": "Please include {phone} in the Message to help us verify your order!",
+    "step2": "Put Reference Number in Message",
+    "step2Note": "Please include {ref} in your E-transfer message so we can verify your payment instantly.",
+    "refNumber": "Reference Number",
     "copy": "Copy",
     "copied": "Copied",
-    "backHome": "Back to Home"
+    "backHome": "Back to Home",
+    "contactSupport": "Forgot to include the reference? Please contact us to reclaim your funds."
   },
   "addToHome": {
     "title": "Add to Home Screen",

@@ -103,6 +103,7 @@ export async function submitOrder(orderData: OrderData) {
           total_amount: orderData.total_amount,
           notes: orderData.notes || null,
           status: 'pending',
+          reference_number: generateReferenceNumber(),
           user_id: session.user.id
         }
       ])
@@ -219,4 +220,13 @@ export async function getAdminStats() {
       error: 'Failed to fetch admin stats'
     };
   }
+}
+
+function generateReferenceNumber(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude I, O, 0, 1, Q to avoid confusion
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
 }
