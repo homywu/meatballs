@@ -44,14 +44,14 @@ export default function HomePage() {
       tag: t('menu.products.pork.tag'),
       image: '/images/pork-meatballs.jpg'
     },
-    {
-      id: 'fish',
-      name: t('menu.products.fish.name'),
-      desc: t('menu.products.fish.desc'),
-      price: 22,
-      tag: t('menu.products.fish.tag'),
-      image: '/images/fish-meatballs.jpg'
-    }
+    // {
+    //   id: 'fish',
+    //   name: t('menu.products.fish.name'),
+    //   desc: t('menu.products.fish.desc'),
+    //   price: 22,
+    //   tag: t('menu.products.fish.tag'),
+    //   image: '/images/fish-meatballs.jpg'
+    // }
   ], [t]);
 
   // 狀態管理
