@@ -49,8 +49,30 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ message: 'Order already paid', order_id: order.id });
         }
 
-        if (order.total_amount !== Number(payload.amount)) {
-            return NextResponse.json({ error: 'Order amount does not match' }, { status: 400 });
+        // 3. Parse Amount logic
+        // Example:
+        // Funds Deposited!
+        // $20.00
+        const amountRegex = /Funds Deposited!\s*\$([\d,]+\.\d{2})/;
+        const amountMatch = body_plain.match(amountRegex);
+
+        if (!amountMatch) {
+            console.log('Could not find amount in email body');
+            // If we can't find amount, maybe we shouldn't fail immediately but warn?
+            // For security, if we can't verify amount, we probably shouldn't verify payment?
+            // Or maybe fallback to payload.amount if available?
+            // Let's rely on body parsing as requested.
+            return NextResponse.json({ error: 'Could not parse amount from email' }, { status: 400 });
+        }
+
+        const parsedAmountStr = amountMatch[1].replace(/,/g, ''); // Remove commas
+        const parsedAmount = parseFloat(parsedAmountStr);
+
+        console.log(`Parsed amount: ${parsedAmount}`);
+
+        if (Math.abs(order.total_amount - parsedAmount) > 0.01) {
+            console.log(`Amount mismatch. Order: ${order.total_amount}, Email: ${parsedAmount}`);
+            return NextResponse.json({ error: 'Order amount does not match deposited amount' }, { status: 400 });
         }
 
         // 4. Update Order Status
