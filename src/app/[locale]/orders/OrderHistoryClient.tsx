@@ -107,12 +107,12 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
                     <div className="flex items-center gap-2 mb-2">
                       <Package className="w-5 h-5 text-slate-400" />
                       <span className="text-sm font-mono text-slate-500">
-                        Order:
+                        Order REF #:
                       </span>
                       {order.reference_number && (
                         <div className="flex items-center gap-2">
-                          <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full font-mono font-bold">
-                            REF: {order.reference_number}
+                          <span className="text-xs bg-yellow-100 text-yellow-800 px-2 pt-0.5 rounded-full font-mono font-bold">
+                            {order.reference_number}
                           </span>
                           <button
                             onClick={() => copyToClipboard(order.reference_number!, order.id)}
