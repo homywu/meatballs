@@ -14,14 +14,15 @@ export async function POST(request: NextRequest) {
 
         const payload = await request.json();
         const { body_plain, sender } = payload;
+        console.log(`Received transfer notification from ${body_plain}`);
 
         // 2. Parse Reference Number from body
-        // Expecting something like "Ref: ABC123" or just searching for the 6-char code
+        // Expecting something like "Ref: CRAFT_ABC123" or just searching for the code with prefix
         // Let's search for the pattern.
         // Our pattern is 6 chars, uppercase alphanumeric (excluding I, O, 0, 1, Q as per generator)
-        // Regex: \b[A-HJ-NP-Z2-9]{6}\b
+        // Regex: \bCRAFT_[A-HJ-NP-Z2-9]{6}\b
 
-        const refRegex = /\b[A-HJ-NP-Z2-9]{6}\b/;
+        const refRegex = /\bCRAFT_[A-HJ-NP-Z2-9]{6}\b/;
         const match = body_plain.match(refRegex);
 
         if (!match) {
@@ -46,6 +47,10 @@ export async function POST(request: NextRequest) {
 
         if (order.status === 'paid' || order.status === 'completed') {
             return NextResponse.json({ message: 'Order already paid', order_id: order.id });
+        }
+
+        if (order.total_amount !== Number(payload.amount)) {
+            return NextResponse.json({ error: 'Order amount does not match' }, { status: 400 });
         }
 
         // 4. Update Order Status
