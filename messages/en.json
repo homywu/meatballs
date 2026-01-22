@@ -27,6 +27,7 @@
     },
     "total": "Total",
     "note": "Note",
+    "delivery_method": "Delivery Method",
     "view_larger_map": "View larger map",
     "ref_prefix": "Order REF #:",
     "order_date": "Order Date",

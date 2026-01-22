@@ -139,58 +139,61 @@ export default function OrderListClient({ orders, error, locale }: OrderListClie
                 </div>
 
                 {/* Delivery Info */}
-                <div className="flex flex-col gap-1 text-sm bg-slate-50 p-3 rounded-xl border border-slate-100">
-                  {order.schedule_delivery ? (
-                    <>
-                      <div className="flex items-center gap-2 text-slate-700 font-medium">
-                        <Clock className="w-4 h-4 text-orange-500" />
-                        <span>
-                          {new Date(order.schedule_delivery.delivery_time).toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US', {
-                            weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
-                          })}
-                        </span>
-                      </div>
-                      <div className="flex items-start gap-2 text-slate-600">
-                        <MapPin className="w-4 h-4 text-slate-400 mt-0.5" />
-                        <div>
-                          <div className="font-medium text-slate-800">{order.schedule_delivery.delivery_option.label}</div>
-                          {order.schedule_delivery.delivery_option.address && (
-                            <div className="font-bold text-slate-700">{order.schedule_delivery.delivery_option.address}</div>
-                          )}
-                          {order.schedule_delivery.delivery_option.description && (
-                            <div className="text-xs text-slate-500">{order.schedule_delivery.delivery_option.description}</div>
-                          )}
+                <div className="space-y-2">
+                  <div className="flex flex-col gap-1 text-sm bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <h3 className="pb-3 text-base font-bold text-slate-700">{t('orders.delivery_method')}： </h3>
+                    {order.schedule_delivery ? (
+                      <>
+                        <div className="flex items-center gap-2 text-slate-700 font-medium">
+                          <Clock className="w-4 h-4 text-orange-500" />
+                          <span>
+                            {new Date(order.schedule_delivery.delivery_time).toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US', {
+                              weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+                            })}
+                          </span>
                         </div>
-                      </div>
-                      {order.schedule_delivery.delivery_option.map_url && (
-                        <div className="rounded-lg overflow-hidden border border-slate-200 mt-2 h-32 relative group">
-                          <iframe
-                            src={order.schedule_delivery.delivery_option.map_url}
-                            width="100%"
-                            height="100%"
-                            style={{ border: 0 }}
-                            className="pointer-events-none"
-                            allowFullScreen={false}
-                            loading="lazy"
-                            referrerPolicy="no-referrer-when-downgrade"
-                          ></iframe>
-                          <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.schedule_delivery.delivery_option.address || order.schedule_delivery.delivery_option.label)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="absolute inset-0 z-10 bg-transparent flex items-start justify-start p-2"
-                            title={t('orders.view_larger_map')}
-                          >
-                            <div className="bg-white/90 px-3 py-1.5 rounded shadow-sm text-blue-600 text-xs font-bold border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity">
-                              {t('orders.view_larger_map')}
-                            </div>
-                          </a>
+                        <div className="flex items-start gap-2 text-slate-600">
+                          <MapPin className="w-4 h-4 text-slate-400 mt-0.5" />
+                          <div>
+                            {/* <div className="font-medium text-slate-800">{order.schedule_delivery.delivery_option.label}</div> */}
+                            {order.schedule_delivery.delivery_option.address && (
+                              <div className="font-bold text-slate-700">{order.schedule_delivery.delivery_option.address}</div>
+                            )}
+                            {order.schedule_delivery.delivery_option.description && (
+                              <div className="text-xs text-slate-500">{order.schedule_delivery.delivery_option.description}</div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="text-slate-400 italic text-xs">{t('orders.legacy_order_info')}</div>
-                  )}
+                        {order.schedule_delivery.delivery_option.map_url && (
+                          <div className="rounded-lg overflow-hidden border border-slate-200 mt-2 h-32 relative group">
+                            <iframe
+                              src={order.schedule_delivery.delivery_option.map_url}
+                              width="100%"
+                              height="100%"
+                              style={{ border: 0 }}
+                              className="pointer-events-none"
+                              allowFullScreen={false}
+                              loading="lazy"
+                              referrerPolicy="no-referrer-when-downgrade"
+                            ></iframe>
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.schedule_delivery.delivery_option.address || order.schedule_delivery.delivery_option.label)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="absolute inset-0 z-10 bg-transparent flex items-start justify-start p-2"
+                              title={t('orders.view_larger_map')}
+                            >
+                              <div className="bg-white/90 px-3 py-1.5 rounded shadow-sm text-blue-600 text-xs font-bold border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {t('orders.view_larger_map')}
+                              </div>
+                            </a>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-slate-400 italic text-xs">{t('orders.legacy_order_info')}</div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Order Items */}
