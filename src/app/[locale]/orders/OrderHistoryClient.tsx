@@ -160,16 +160,28 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
                         </div>
                       </div>
                       {order.schedule_delivery.delivery_option.map_url && (
-                        <div className="rounded-lg overflow-hidden border border-slate-200 mt-2 h-32">
+                        <div className="rounded-lg overflow-hidden border border-slate-200 mt-2 h-32 relative group">
                           <iframe
                             src={order.schedule_delivery.delivery_option.map_url}
                             width="100%"
                             height="100%"
                             style={{ border: 0 }}
+                            className="pointer-events-none"
                             allowFullScreen={false}
                             loading="lazy"
                             referrerPolicy="no-referrer-when-downgrade"
                           ></iframe>
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.schedule_delivery.delivery_option.address || order.schedule_delivery.delivery_option.label)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="absolute inset-0 z-10 bg-transparent flex items-start justify-start p-2"
+                            title={t('orders.view_larger_map')}
+                          >
+                            <div className="bg-white/90 px-3 py-1.5 rounded shadow-sm text-blue-600 text-xs font-bold border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity">
+                              View larger map
+                            </div>
+                          </a>
                         </div>
                       )}
                     </>
