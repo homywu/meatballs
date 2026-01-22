@@ -107,7 +107,7 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
                     <div className="flex items-center gap-2 mb-2">
                       <Package className="w-5 h-5 text-slate-400" />
                       <span className="text-sm font-mono text-slate-500">
-                        Order REF #:
+                        {t('orders.ref_prefix')}
                       </span>
                       {order.reference_number && (
                         <div className="flex items-center gap-2">
@@ -179,14 +179,14 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
                             title={t('orders.view_larger_map')}
                           >
                             <div className="bg-white/90 px-3 py-1.5 rounded shadow-sm text-blue-600 text-xs font-bold border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity">
-                              View larger map
+                              {t('orders.view_larger_map')}
                             </div>
                           </a>
                         </div>
                       )}
                     </>
                   ) : (
-                    <div className="text-slate-400 italic text-xs">Delivery info unavailable (Legacy Order)</div>
+                    <div className="text-slate-400 italic text-xs">{t('orders.legacy_order_info')}</div>
                   )}
                 </div>
 

@@ -27,7 +27,9 @@
     },
     "total": "總計",
     "note": "備註",
-    "view_larger_map": "查看完整地圖"
+    "view_larger_map": "查看完整地圖",
+    "ref_prefix": "訂單編號:",
+    "legacy_order_info": "無配送信息 (舊訂單)"
   },
   "hero": {
     "badge": "Sage Hill 最正宗",
