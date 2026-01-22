@@ -35,7 +35,7 @@ export default function Header({
     // Force white background on non-home pages if desired, but for now consistent behavior involving scroll
     // If not on home page, maybe we want it always white? 
     // Let's stick to scroll behavior which is nice, but ensure pages have padding if needed.
-    // Actually, on OrderHistory (white bg), transparent header text might be invisible if text is white.
+    // Actually, on OrderList (white bg), transparent header text might be invisible if text is white.
     // Header text color logic: ${isScrolled ? 'text-slate-800' : 'text-white'}
     // On Home page Hero is dark/image -> text-white is good.
     // On Order page bg is white -> text-white is invisible.

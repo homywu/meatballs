@@ -3,7 +3,7 @@ import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { auth } from '@/lib/auth';
 import { getUserOrders } from '../actions';
-import OrderHistoryClient from './OrderHistoryClient';
+import OrderListClient from './OrderListClient';
 
 export default async function OrdersPage({
   params
@@ -23,7 +23,7 @@ export default async function OrdersPage({
   const ordersResult = await getUserOrders();
 
   return (
-    <OrderHistoryClient 
+    <OrderListClient
       orders={ordersResult.success ? ordersResult.data || [] : []}
       error={ordersResult.success ? undefined : ordersResult.error}
       locale={locale}

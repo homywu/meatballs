@@ -8,13 +8,13 @@ import { ArrowLeft, Package, Calendar, DollarSign, MapPin, Store, CheckCircle, C
 // Footer removed
 import type { Order } from '@/types/order';
 
-interface OrderHistoryClientProps {
+interface OrderListClientProps {
   orders: Order[];
   error?: string;
   locale: string;
 }
 
-export default function OrderHistoryClient({ orders, error, locale }: OrderHistoryClientProps) {
+export default function OrderListClient({ orders, error, locale }: OrderListClientProps) {
   const t = useTranslations();
   const router = useRouter();
   const [copiedId, setCopiedId] = useState<string | null>(null);

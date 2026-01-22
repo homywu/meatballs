@@ -18,7 +18,7 @@ function SignInForm() {
           </div>
         </div>
         <h1 className="text-2xl font-bold text-slate-800">Sign In</h1>
-        <p className="text-slate-600">Sign in with Google to place orders and view your order history.</p>
+        <p className="text-slate-600">Sign in with Google to place orders and view your order list.</p>
       </div>
 
       <button

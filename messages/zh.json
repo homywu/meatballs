@@ -5,7 +5,7 @@
     "status": {
       "accepting": "接單中"
     },
-    "orderHistory": "歷史訂單",
+    "orderList": "訂單列表",
     "home": "首頁",
     "orders": "訂單",
     "loading": "載入中...",
@@ -13,7 +13,7 @@
     "saveSuccess": "保存成功！"
   },
   "orders": {
-    "title": "歷史訂單",
+    "title": "訂單列表",
     "empty": {
       "title": "暫無訂單",
       "description": "您還沒有下過單哦",
@@ -80,7 +80,7 @@
     "refNumber": "參考編號",
     "copy": "Copy",
     "copied": "Copied",
-    "backHome": "返回首頁",
+    "backOrderList": "返回訂單歷史",
     "contactSupport": "忘記入備註參考編號？請聯繫我們的微信確認款項哦～"
   },
   "addToHome": {

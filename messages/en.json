@@ -5,7 +5,7 @@
     "status": {
       "accepting": "Accepting Orders"
     },
-    "orderHistory": "Order History",
+    "orderList": "Order List",
     "home": "Home",
     "orders": "Orders",
     "loading": "Loading...",
@@ -13,7 +13,7 @@
     "saveSuccess": "Saved successfully!"
   },
   "orders": {
-    "title": "Order History",
+    "title": "Order List",
     "empty": {
       "title": "No Orders Yet",
       "description": "You haven't placed any orders yet.",
@@ -80,7 +80,7 @@
     "refNumber": "Reference Number",
     "copy": "Copy",
     "copied": "Copied",
-    "backHome": "Back to Home",
+    "backOrderList": "Back to Order List",
     "contactSupport": "Forgot to include the reference? Please contact us to reclaim your funds."
   },
   "addToHome": {

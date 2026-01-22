@@ -11,7 +11,7 @@ export interface OrderItem {
 
 export interface OrderData {
   customer_name: string;
-  phone_number: string;
+  phone_number?: string;
   schedule_delivery_id: string;
   items: OrderItem[];
   total_amount: number;

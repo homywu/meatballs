@@ -151,7 +151,7 @@ export default function HomePage() {
       // Prepare order data
       const orderData = {
         customer_name: formData.name,
-        phone_number: formData.phone,
+        ...(formData.phone ? { phone_number: formData.phone } : {}),
         schedule_delivery_id: selectedSlotId,
         items,
         total_amount: totalPrice,
@@ -262,7 +262,7 @@ export default function HomePage() {
           totalPrice={totalPrice}
           session={session}
           isSubmitting={isSubmitting}
-          canSubmit={!!(formData.name && formData.phone && selectedSlotId)}
+          canSubmit={!!(formData.name && selectedSlotId)}
           onSubmit={handleSubmit}
         />
       )}

@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter, useParams } from 'next/navigation';
 import { CheckCircle, Copy, Star } from 'lucide-react';
 
 interface SuccessViewProps {
     totalPrice: number;
-    phone: string;
+    phone?: string;
     referenceNumber?: string;
     message?: string;
 }
 
 export default function SuccessView({ totalPrice, phone, referenceNumber, message }: SuccessViewProps) {
     const t = useTranslations();
+    const router = useRouter();
+    const params = useParams();
+    const locale = params.locale as string;
     const [copySuccess, setCopySuccess] = useState(false);
     const [copyRefSuccess, setCopyRefSuccess] = useState(false);
 
@@ -105,7 +109,7 @@ export default function SuccessView({ totalPrice, phone, referenceNumber, messag
                     <div className="bg-red-50 p-3 rounded-xl border border-red-100 flex items-start gap-2">
                         <div className="mt-0.5"><Star className="w-4 h-4 text-red-500 fill-red-500" /></div>
                         <p className="text-sm text-red-700">
-                            {t('success.step2Note', { ref: referenceNumber || phone })}
+                            {t('success.step2Note', { ref: referenceNumber || phone || '' })}
                         </p>
                     </div>
 
@@ -115,10 +119,10 @@ export default function SuccessView({ totalPrice, phone, referenceNumber, messag
                 </div>
 
                 <button
-                    onClick={() => window.location.reload()}
+                    onClick={() => router.push(`/${locale}/orders`)}
                     className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition shadow-lg hover:shadow-xl translate-y-0 hover:-translate-y-1"
                 >
-                    {t('success.backHome')}
+                    {t('success.backOrderList')}
                 </button>
             </div>
         </div>

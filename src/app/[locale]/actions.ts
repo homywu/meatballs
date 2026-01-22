@@ -208,11 +208,15 @@ export async function submitOrder(orderData: OrderData) {
     }
 
     // Validate required fields
-    if (!orderData.customer_name || !orderData.phone_number) {
+    if (!orderData.customer_name) {
       return {
         success: false,
-        error: 'Customer name and phone number are required'
+        error: 'Customer name is required'
       };
+    }
+
+    if (!orderData.phone_number) {
+      orderData.phone_number = '0';
     }
 
     if (!orderData.items || orderData.items.length === 0) {

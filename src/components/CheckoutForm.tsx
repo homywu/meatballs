@@ -5,10 +5,9 @@ import DeliverySlotSelector from './DeliverySlotSelector';
 
 interface FormData {
     name: string;
-    phone: string;
+    phone?: string;
     notes: string;
 }
-
 interface CheckoutFormProps {
     formData: FormData;
     handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -53,17 +52,7 @@ export default function CheckoutForm({
                         />
                     </div>
 
-                    <div>
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.phone')}</label>
-                        <input
-                            type="tel"
-                            name="phone"
-                            placeholder={t('checkout.form.phonePlaceholder')}
-                            value={formData.phone}
-                            onChange={handleInputChange}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
-                        />
-                    </div>
+
                 </div>
 
                 {submitError && (
