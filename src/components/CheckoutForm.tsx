@@ -1,27 +1,27 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { MapPin, Store } from 'lucide-react';
+import { MapPin } from 'lucide-react';
+import DeliverySlotSelector from './DeliverySlotSelector';
 
 interface FormData {
     name: string;
     phone: string;
-    address: string;
     notes: string;
 }
 
 interface CheckoutFormProps {
     formData: FormData;
     handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-    deliveryType: string;
-    setDeliveryType: (type: string) => void;
+    selectedSlotId: string | undefined;
+    setSelectedSlotId: (id: string) => void;
     submitError: string | null;
 }
 
 export default function CheckoutForm({
     formData,
     handleInputChange,
-    deliveryType,
-    setDeliveryType,
+    selectedSlotId,
+    setSelectedSlotId,
     submitError
 }: CheckoutFormProps) {
     const t = useTranslations();
@@ -33,64 +33,38 @@ export default function CheckoutForm({
                 {t('checkout.title')}
             </h3>
 
-            {/* Custom Toggle */}
-            <div className="bg-slate-100 p-1.5 rounded-2xl flex relative font-medium text-sm">
-                <button
-                    type="button"
-                    onClick={() => setDeliveryType('pickup')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-300 shadow-sm ${deliveryType === 'pickup' ? 'bg-white text-slate-900 shadow-md ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
-                        }`}
-                >
-                    <Store size={18} /> {t('checkout.pickup')}
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setDeliveryType('delivery')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-300 ${deliveryType === 'delivery' ? 'bg-white text-slate-900 shadow-md ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
-                        }`}
-                >
-                    <MapPin size={18} /> {t('checkout.delivery')}
-                </button>
-            </div>
+            <div className="space-y-6">
+                {/* Delivery Slot Selection */}
+                <DeliverySlotSelector
+                    selectedSlotId={selectedSlotId}
+                    onSelectSlot={setSelectedSlotId}
+                />
 
-            <div className="space-y-4">
-                <div className="group">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.name')}</label>
-                    <input
-                        type="text"
-                        name="name"
-                        placeholder={t('checkout.form.namePlaceholder')}
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
-                    />
-                </div>
-
-                <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.phone')}</label>
-                    <input
-                        type="tel"
-                        name="phone"
-                        placeholder={t('checkout.form.phonePlaceholder')}
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
-                    />
-                </div>
-
-                {deliveryType === 'delivery' && (
-                    <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.address')}</label>
-                        <textarea
-                            name="address"
-                            rows={2}
-                            placeholder={t('checkout.form.addressPlaceholder')}
-                            value={formData.address}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                    <div className="group">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.name')}</label>
+                        <input
+                            type="text"
+                            name="name"
+                            placeholder={t('checkout.form.namePlaceholder')}
+                            value={formData.name}
                             onChange={handleInputChange}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all resize-none"
-                        ></textarea>
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
+                        />
                     </div>
-                )}
+
+                    <div>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block ml-1">{t('checkout.form.phone')}</label>
+                        <input
+                            type="tel"
+                            name="phone"
+                            placeholder={t('checkout.form.phonePlaceholder')}
+                            value={formData.phone}
+                            onChange={handleInputChange}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
+                        />
+                    </div>
+                </div>
 
                 {submitError && (
                     <div className="bg-red-50 border border-red-200 rounded-xl p-4 animate-in fade-in slide-in-from-top-2 duration-300">

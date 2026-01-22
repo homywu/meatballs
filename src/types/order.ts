@@ -12,8 +12,7 @@ export interface OrderItem {
 export interface OrderData {
   customer_name: string;
   phone_number: string;
-  delivery_method: 'pickup_sage_hill' | 'delivery';
-  delivery_address?: string;
+  schedule_delivery_id: string;
   items: OrderItem[];
   total_amount: number;
   notes?: string;
@@ -23,9 +22,20 @@ export interface OrderData {
 export interface Order extends OrderData {
   id: string;
   created_at: string;
-  status: 'pending' | 'paid' | 'completed';
+  status: 'pending' | 'paid' | 'completed' | 'waitlist' | 'cancelled';
   reference_number?: string;
   user_id?: string;
+  // Joined fields for display
+  schedule_delivery?: {
+    delivery_time: string;
+    delivery_option: {
+      label: string;
+      address: string | null;
+      description: string | null;
+      map_url: string | null;
+      delivery_method: string | null;
+    }
+  }
 }
 
 export interface User {

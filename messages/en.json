@@ -7,7 +7,9 @@
     },
     "orderHistory": "Order History",
     "home": "Home",
-    "orders": "Orders"
+    "orders": "Orders",
+    "loading": "Loading...",
+    "error": "Something went wrong"
   },
   "orders": {
     "title": "Order History",
@@ -37,25 +39,10 @@
   "menu": {
     "title": "Today's Menu",
     "lowStock": "Low Stock",
+    "remaining": "{count} remaining",
+    "joinWaitlist": "Join Waitlist",
     "unit": "1LB / Pack (Vacuum Sealed)",
-    "addToCart": "Add One",
-    "products": {
-      "beef": {
-        "name": "Signature Handmade Beef Meatballs",
-        "desc": "Made with premium beef hind leg, pounded thousands of times, bursting with juice and delightfully chewy.",
-        "tag": "Best Seller 🔥"
-      },
-      "pork": {
-        "name": "Golden Ratio Juicy Pork Meatballs",
-        "desc": "3:7 fat-to-lean golden ratio, infused with secret scallion oil, every bite is rich and aromatic.",
-        "tag": "Kids' Favorite 👶"
-      },
-      "fish": {
-        "name": "Deep Sea Handmade Fish Balls",
-        "desc": "Freshly handmade daily, sweet and tender, a must-have for hot pot.",
-        "tag": "Hot Pot Essential 🍲"
-      }
-    }
+    "addToCart": "Add One"
   },
   "checkout": {
     "title": "Delivery Information",

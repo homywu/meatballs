@@ -6,9 +6,10 @@ interface SuccessViewProps {
     totalPrice: number;
     phone: string;
     referenceNumber?: string;
+    message?: string;
 }
 
-export default function SuccessView({ totalPrice, phone, referenceNumber }: SuccessViewProps) {
+export default function SuccessView({ totalPrice, phone, referenceNumber, message }: SuccessViewProps) {
     const t = useTranslations();
     const [copySuccess, setCopySuccess] = useState(false);
     const [copyRefSuccess, setCopyRefSuccess] = useState(false);
@@ -51,6 +52,13 @@ export default function SuccessView({ totalPrice, phone, referenceNumber }: Succ
                     <h2 className="text-2xl font-extrabold text-slate-800">{t('success.title')}</h2>
                     <p className="text-slate-500 mt-2">{t('success.subtitle')}</p>
                 </div>
+
+                {message && (
+                    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 text-left rounded-r-xl">
+                        <p className="font-bold text-yellow-800">Note:</p>
+                        <p className="text-yellow-700">{message}</p>
+                    </div>
+                )}
 
                 <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-100 dashed-border">
                     <p className="text-sm font-medium text-slate-500 mb-1">{t('success.total')}</p>

@@ -133,24 +133,48 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
                       <span>{formatDate(order.created_at)}</span>
                     </div>
                   </div>
-                  <div className={`flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold ${getStatusColor(order.status)}`}>
-                    {getStatusIcon(order.status)}
-                    <span className="capitalize">{t(`orders.status.${order.status}`)}</span>
-                  </div>
                 </div>
 
                 {/* Delivery Info */}
-                <div className="flex items-start gap-2 text-sm">
-                  {order.delivery_method === 'pickup_sage_hill' ? (
+                <div className="flex flex-col gap-1 text-sm bg-slate-50 p-3 rounded-xl border border-slate-100">
+                  {order.schedule_delivery ? (
                     <>
-                      <Store className="w-4 h-4 text-slate-400 mt-0.5" />
-                      <span className="text-slate-600">{t('checkout.pickup')}</span>
+                      <div className="flex items-center gap-2 text-slate-700 font-medium">
+                        <Clock className="w-4 h-4 text-orange-500" />
+                        <span>
+                          {new Date(order.schedule_delivery.delivery_time).toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US', {
+                            weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-2 text-slate-600">
+                        <MapPin className="w-4 h-4 text-slate-400 mt-0.5" />
+                        <div>
+                          <div className="font-medium text-slate-800">{order.schedule_delivery.delivery_option.label}</div>
+                          {order.schedule_delivery.delivery_option.address && (
+                            <div className="font-bold text-slate-700">{order.schedule_delivery.delivery_option.address}</div>
+                          )}
+                          {order.schedule_delivery.delivery_option.description && (
+                            <div className="text-xs text-slate-500">{order.schedule_delivery.delivery_option.description}</div>
+                          )}
+                        </div>
+                      </div>
+                      {order.schedule_delivery.delivery_option.map_url && (
+                        <div className="rounded-lg overflow-hidden border border-slate-200 mt-2 h-32">
+                          <iframe
+                            src={order.schedule_delivery.delivery_option.map_url}
+                            width="100%"
+                            height="100%"
+                            style={{ border: 0 }}
+                            allowFullScreen={false}
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                          ></iframe>
+                        </div>
+                      )}
                     </>
                   ) : (
-                    <>
-                      <MapPin className="w-4 h-4 text-slate-400 mt-0.5" />
-                      <span className="text-slate-600">{order.delivery_address}</span>
-                    </>
+                    <div className="text-slate-400 italic text-xs">Delivery info unavailable (Legacy Order)</div>
                   )}
                 </div>
 
@@ -159,7 +183,7 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
                   {order.items.map((item, index) => (
                     <div key={index} className="flex items-center justify-between text-sm">
                       <span className="text-slate-700">
-                        {item.product_id ? t(`menu.products.${item.product_id}.name`) : item.name} × {item.quantity}
+                        {item.name} × {item.quantity}
                       </span>
                       <span className="font-medium text-slate-800">
                         ${(item.price * item.quantity).toFixed(2)}
@@ -170,9 +194,9 @@ export default function OrderHistoryClient({ orders, error, locale }: OrderHisto
 
                 {/* Total */}
                 <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-orange-600" />
-                    <span className="font-bold text-slate-800">{t('orders.total')}</span>
+                  <div className={`flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold ${getStatusColor(order.status)}`}>
+                    {getStatusIcon(order.status)}
+                    <span className="capitalize">{t(`orders.status.${order.status}`)}</span>
                   </div>
                   <span className="text-2xl font-bold text-orange-600">
                     ${order.total_amount.toFixed(2)}

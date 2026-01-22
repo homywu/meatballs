@@ -1,38 +1,44 @@
 import React from 'react';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Plus, Minus } from 'lucide-react';
-
-interface Product {
-    id: string;
-    name: string;
-    desc: string;
-    price: number;
-    tag: string;
-    image: string;
-}
+import type { Product } from '@/types/product';
 
 interface ProductCardProps {
     product: Product;
     quantity: number;
     onUpdateCart: (id: string, delta: number) => void;
+    remaining?: number;
 }
 
-export default function ProductCard({ product, quantity, onUpdateCart }: ProductCardProps) {
+export default function ProductCard({ product, quantity, onUpdateCart, remaining = 0 }: ProductCardProps) {
     const t = useTranslations();
+    const locale = useLocale() as 'en' | 'zh';
+
+    const productName = product.name[locale] || product.name.en;
+    const productDesc = product.description[locale] || product.description.en;
 
     return (
         <div className="group bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-100">
             {/* Image Area */}
             <div className="relative h-48 overflow-hidden">
-                <div className="absolute top-3 left-3 z-10">
+                <div className="absolute top-3 left-3 right-3 z-10 flex justify-between items-center">
                     <span className="px-3 py-1 bg-white/90 backdrop-blur text-orange-600 text-xs font-bold rounded-full shadow-sm flex items-center gap-1">
-                        {product.tag}
+                        {product.tag[locale] || product.tag.en}
                     </span>
+                    {remaining > 0 ? (
+                        <span className="px-3 py-1 bg-green-100/90 backdrop-blur text-green-700 text-xs font-bold rounded-full shadow-sm">
+                            {t('menu.remaining', { count: remaining })}
+                        </span>
+                    ) : (
+                        <span className="px-3 py-1 bg-red-100/90 backdrop-blur text-red-700 text-xs font-bold rounded-full shadow-sm">
+                            {t('menu.joinWaitlist')}
+                        </span>
+                    )}
                 </div>
                 <Image
                     src={product.image}
-                    alt={product.name}
+                    alt={productName}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                     sizes="(max-width: 768px) 100vw, 400px"
@@ -42,12 +48,12 @@ export default function ProductCard({ product, quantity, onUpdateCart }: Product
             {/* Content Area */}
             <div className="p-5">
                 <div className="flex justify-between items-start mb-2">
-                    <h4 className="text-lg font-bold text-slate-800">{product.name}</h4>
+                    <h4 className="text-lg font-bold text-slate-800">{productName}</h4>
                     <span className="text-xl font-bold text-orange-600 font-serif">${product.price}</span>
                 </div>
 
                 <p className="text-sm text-slate-500 leading-relaxed mb-6">
-                    {product.desc}
+                    {productDesc}
                 </p>
 
                 {/* Action Area */}
