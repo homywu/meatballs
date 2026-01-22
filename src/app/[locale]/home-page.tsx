@@ -207,7 +207,7 @@ export default function HomePage() {
       <HeroSection />
 
       {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-4 mt-4 relative z-30 space-y-8">
+      <main className="max-w-5xl mx-auto px-4 mt-4 relative z-30 space-y-8">
 
         {/* Menu Section */}
         <section className="space-y-6">
@@ -224,18 +224,19 @@ export default function HomePage() {
             )}
           </div>
 
-          <div className="grid gap-6">
+          <div className="grid md:grid-cols-2 gap-8">
             {isLoadingProducts ? (
               <div className="text-center py-12 text-slate-400">
                 {t('common.loading')}
               </div>
-            ) : products.map((product) => (
+            ) : products.map((product, index) => (
               <ProductCard
                 key={product.id}
                 product={product}
                 quantity={cart[product.id] || 0}
                 onUpdateCart={updateCart}
                 remaining={inventory[product.id]?.remaining || 0}
+                priority={index < 2}
               />
             ))}
           </div>

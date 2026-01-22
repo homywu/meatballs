@@ -17,6 +17,7 @@ export default function HeroSection() {
                 className="object-cover object-center animate-in fade-in duration-1000 scale-105"
                 priority
                 sizes="100vw"
+                quality={95}
             />
 
             <div className="absolute bottom-0 left-0 right-0 z-20 p-6 pb-12 max-w-2xl mx-auto">

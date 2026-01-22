@@ -9,9 +9,10 @@ interface ProductCardProps {
     quantity: number;
     onUpdateCart: (id: string, delta: number) => void;
     remaining?: number;
+    priority?: boolean;
 }
 
-export default function ProductCard({ product, quantity, onUpdateCart, remaining = 0 }: ProductCardProps) {
+export default function ProductCard({ product, quantity, onUpdateCart, remaining = 0, priority = false }: ProductCardProps) {
     const t = useTranslations();
     const locale = useLocale() as 'en' | 'zh';
 
@@ -41,7 +42,9 @@ export default function ProductCard({ product, quantity, onUpdateCart, remaining
                     alt={productName}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    sizes="(max-width: 768px) 100vw, 400px"
+                    sizes="(max-width: 768px) 100vw, 672px"
+                    quality={95}
+                    priority={priority}
                 />
             </div>
 
