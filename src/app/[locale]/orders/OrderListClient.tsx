@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { ArrowLeft, Package, Calendar, DollarSign, MapPin, Store, CheckCircle, Clock, XCircle, Copy } from 'lucide-react';
+import { ArrowLeft, Package, Calendar, DollarSign, MapPin, Store, CheckCircle, Clock, XCircle, Copy, CalendarClock } from 'lucide-react';
 // Footer removed
 import type { Order } from '@/types/order';
 
@@ -129,7 +129,10 @@ export default function OrderListClient({ orders, error, locale }: OrderListClie
                       )}
                     </div>
                     <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Calendar className="w-4 h-4" />
+                      <CalendarClock className="w-5 h-5 text-slate-400" />
+                      <span className="text-sm font-mono text-slate-500">
+                        {t('orders.order_date')}:
+                      </span>
                       <span>{formatDate(order.created_at)}</span>
                     </div>
                   </div>

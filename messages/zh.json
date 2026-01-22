@@ -29,6 +29,7 @@
     "note": "備註",
     "view_larger_map": "查看完整地圖",
     "ref_prefix": "訂單編號:",
+    "order_date": "訂單日期",
     "legacy_order_info": "無配送信息 (舊訂單)"
   },
   "hero": {
