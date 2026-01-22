@@ -9,7 +9,7 @@ import type { DeliveryOption, ProductionSchedule } from '@/types/admin';
 async function checkAdmin() {
     const session = await auth();
     if (session?.user?.role !== 'admin') {
-        throw new Error('Unauthorized');
+        return null;
     }
     return session;
 }
@@ -17,7 +17,9 @@ async function checkAdmin() {
 // --- Delivery Options ---
 
 export async function getDeliveryOptions() {
-    await checkAdmin();
+    const session = await checkAdmin();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
     const { data, error } = await supabaseAdmin
         .from('delivery_options')
         .select('*')
@@ -28,7 +30,9 @@ export async function getDeliveryOptions() {
 }
 
 export async function upsertDeliveryOption(option: Partial<DeliveryOption>) {
-    await checkAdmin();
+    const session = await checkAdmin();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
     const { data, error } = await supabaseAdmin
         .from('delivery_options')
         .upsert({
@@ -47,7 +51,9 @@ export async function upsertDeliveryOption(option: Partial<DeliveryOption>) {
 }
 
 export async function deleteDeliveryOption(id: string) {
-    await checkAdmin();
+    const session = await checkAdmin();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
     const { error } = await supabaseAdmin
         .from('delivery_options')
         .delete()
@@ -60,7 +66,9 @@ export async function deleteDeliveryOption(id: string) {
 // --- Production Schedules ---
 
 export async function getProductionSchedules() {
-    await checkAdmin();
+    const session = await checkAdmin();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
     // Fetch schedules with joined products and deliveries
     const { data, error } = await supabaseAdmin
         .from('production_schedules')
@@ -79,7 +87,9 @@ export async function getProductionSchedules() {
 }
 
 export async function getProductionSchedule(id: string) {
-    await checkAdmin();
+    const session = await checkAdmin();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
     const { data, error } = await supabaseAdmin
         .from('production_schedules')
         .select(`
@@ -98,7 +108,9 @@ export async function getProductionSchedule(id: string) {
 }
 
 export async function deleteProductionSchedule(id: string) {
-    await checkAdmin();
+    const session = await checkAdmin();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
     const { error } = await supabaseAdmin
         .from('production_schedules')
         .delete()
@@ -122,7 +134,8 @@ export async function upsertProductionSchedule(payload: {
         cutoff_time?: string; // ISO
     }[];
 }) {
-    await checkAdmin();
+    const session = await checkAdmin();
+    if (!session) return { success: false, error: 'Unauthorized' };
 
     // 1. Upsert Schedule
     const { data: schedule, error: schedError } = await supabaseAdmin
@@ -187,7 +200,9 @@ export async function upsertProductionSchedule(payload: {
 }
 
 export async function deleteScheduleDelivery(id: string) {
-    await checkAdmin();
+    const session = await checkAdmin();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
     const { error } = await supabaseAdmin
         .from('schedule_deliveries')
         .delete()

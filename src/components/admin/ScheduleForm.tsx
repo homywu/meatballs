@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, Save, Calendar, Clock, MapPin } from 'lucide-react';
+import { Plus, Trash2, Save, Clock, CheckCircle } from 'lucide-react';
 import { upsertProductionSchedule, getDeliveryOptions } from '@/app/actions/admin';
 import type { DeliveryOption, ProductionSchedule } from '@/types/admin';
+import { useTranslations } from 'next-intl';
 
 // Known products constant (could be fetched from config or DB)
 const KNOWN_PRODUCTS = [
@@ -37,8 +38,10 @@ interface ScheduleFormProps {
 }
 
 export default function ScheduleForm({ initialData, locale }: ScheduleFormProps) {
+    const t = useTranslations('common');
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
     const [deliveryOptions, setDeliveryOptions] = useState<DeliveryOption[]>([]);
 
     // Form State
@@ -56,15 +59,25 @@ export default function ScheduleForm({ initialData, locale }: ScheduleFormProps)
 
     // Load options
     useEffect(() => {
-        getDeliveryOptions().then(res => {
-            if (res.success && res.data) setDeliveryOptions(res.data);
-        });
+        const fetchOptions = async () => {
+            try {
+                const res = await getDeliveryOptions();
+                if (res.success && res.data) {
+                    setDeliveryOptions(res.data);
+                } else if (res.error === 'Unauthorized') {
+                    // If unauthorized, the middleware should have redirected, 
+                    // but as a fallback we can show an alert or redirect
+                    router.push(`/${locale}`);
+                } else if (res.error) {
+                    console.error('Error fetching delivery options:', res.error);
+                }
+            } catch (err) {
+                console.error('Failed to fetch delivery options:', err);
+            }
+        };
 
-        // If creating new, init products with known list
-        if (!initialData) {
-            setProducts(KNOWN_PRODUCTS.map(p => ({ product_id: p.id, quantity: 0 })));
-        }
-    }, [initialData]);
+        fetchOptions();
+    }, [initialData, locale, router]);
 
     const handleProductChange = (id: string, qty: number) => {
         setProducts(prev => {
@@ -98,7 +111,7 @@ export default function ScheduleForm({ initialData, locale }: ScheduleFormProps)
         }]);
     };
 
-    const updateDelivery = (index: number, field: string, value: any) => {
+    const updateDelivery = (index: number, field: string, value: string | null) => {
         const newDeliveries = [...deliveries];
         // Special handle for dates to ISO string if needed, 
         // simplified here assuming inputs return ISO or similar manageable strings
@@ -139,8 +152,11 @@ export default function ScheduleForm({ initialData, locale }: ScheduleFormProps)
         setLoading(false);
 
         if (res.success) {
-            router.push(`/${locale}/admin/schedules`);
-            router.refresh();
+            setShowSuccess(true);
+            setTimeout(() => {
+                router.push(`/${locale}/admin/schedules`);
+                router.refresh();
+            }, 1500);
         } else {
             alert('Error saving: ' + res.error);
         }
@@ -153,7 +169,7 @@ export default function ScheduleForm({ initialData, locale }: ScheduleFormProps)
                 <div className="flex gap-3">
                     <select
                         value={status}
-                        onChange={e => setStatus(e.target.value as any)}
+                        onChange={e => setStatus(e.target.value as 'draft' | 'published' | 'completed')}
                         className="px-4 py-2 rounded-xl bg-white border border-slate-200 font-bold text-slate-900"
                     >
                         <option value="draft">Draft</option>
@@ -274,6 +290,21 @@ export default function ScheduleForm({ initialData, locale }: ScheduleFormProps)
                     placeholder="Notes for production or logistics..."
                 />
             </div>
+
+            {/* Success Notification Overlay */}
+            {showSuccess && (
+                <div className="fixed inset-0 flex items-center justify-center z-[100] bg-white/40 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white border border-slate-100 shadow-2xl rounded-3xl p-8 flex flex-col items-center gap-4 animate-in zoom-in duration-500 transform scale-110">
+                        <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center text-green-500 shadow-inner">
+                            <CheckCircle size={40} strokeWidth={2.5} />
+                        </div>
+                        <div className="text-center">
+                            <h3 className="font-bold text-slate-900 text-2xl mb-1">{t('saveSuccess')}</h3>
+                            <p className="text-slate-400 font-medium">Redirecting you back...</p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </form>
     );
 }

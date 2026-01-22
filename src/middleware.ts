@@ -26,6 +26,21 @@ export default auth((req) => {
     }
   }
 
+  // Protect admin routes - require authentication and admin role
+  if (pathname.match(/^\/(zh|en)\/admin/)) {
+    if (!req.auth) {
+      const signInUrl = new URL('/api/auth/signin', req.url);
+      signInUrl.searchParams.set('callbackUrl', pathname);
+      return Response.redirect(signInUrl);
+    }
+
+    if (req.auth.user?.role !== 'admin') {
+      // Redirect to home if not an admin
+      const locale = pathname.split('/')[1];
+      return Response.redirect(new URL(`/${locale}`, req.url));
+    }
+  }
+
   // Apply intl middleware to all other routes
   return intlMiddleware(req);
 });

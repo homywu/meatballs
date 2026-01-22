@@ -91,11 +91,12 @@ export async function getInventoryStatus() {
     // We only care about schedules that have valid delivery times in the future > NOW
     const nowISO = new Date().toISOString();
 
-    // Get all future deliveries
+    // Get all future deliveries for PUBLISHED schedules
     const { data: futureDeliveries } = await supabaseAdmin
       .from('schedule_deliveries')
-      .select('id, schedule_id')
-      .gt('delivery_time', nowISO);
+      .select('id, schedule_id, production_schedules!inner(status)')
+      .gt('delivery_time', nowISO)
+      .eq('production_schedules.status', 'published');
 
     const futureScheduleIds = Array.from(new Set(futureDeliveries?.map(d => d.schedule_id) || []));
 
@@ -171,9 +172,11 @@ export async function getAvailableDeliverySlots() {
         delivery_time,
         cutoff_time,
         schedule_id,
-        delivery_option:delivery_options(*)
+        delivery_option:delivery_options(*),
+        production_schedules!inner(status)
       `)
       .gt('delivery_time', tomorrow.toISOString())
+      .eq('production_schedules.status', 'published')
       .order('delivery_time', { ascending: true });
 
     if (error) throw error;
@@ -227,11 +230,12 @@ export async function submitOrder(orderData: OrderData) {
     }
 
     // 1. Validate Slot & Inventory
-    // Fetch the slot to know the schedule_id
+    // Fetch the slot to know the schedule_id and ensure it's PUBLISHED
     const { data: slot, error: slotError } = await supabaseAdmin
       .from('schedule_deliveries')
-      .select('id, schedule_id, delivery_time, cutoff_time')
+      .select('id, schedule_id, delivery_time, cutoff_time, production_schedules!inner(status)')
       .eq('id', orderData.schedule_delivery_id)
+      .eq('production_schedules.status', 'published')
       .single();
 
     if (slotError || !slot) {

@@ -9,7 +9,8 @@
     "home": "Home",
     "orders": "Orders",
     "loading": "Loading...",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "saveSuccess": "Saved successfully!"
   },
   "orders": {
     "title": "Order History",

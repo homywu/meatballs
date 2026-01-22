@@ -9,7 +9,8 @@
     "home": "首頁",
     "orders": "訂單",
     "loading": "載入中...",
-    "error": "發生錯誤"
+    "error": "發生錯誤",
+    "saveSuccess": "保存成功！"
   },
   "orders": {
     "title": "歷史訂單",

@@ -14,9 +14,20 @@ export default function DeliveryOptionsPage() {
     // Fetch Options
     const fetchOptions = async () => {
         setLoading(true);
-        const res = await getDeliveryOptions();
-        if (res.success && res.data) {
-            setOptions(res.data);
+        try {
+            const res = await getDeliveryOptions();
+            if (res.success && res.data) {
+                setOptions(res.data);
+            } else if (res.error === 'Unauthorized') {
+                // Determine locale from current path
+                const parts = window.location.pathname.split('/');
+                const currentLocale = parts[1] || 'en';
+                window.location.href = `/${currentLocale}`;
+            } else if (res.error) {
+                console.error('Error fetching options:', res.error);
+            }
+        } catch (err) {
+            console.error('Failed to fetch options:', err);
         }
         setLoading(false);
     };

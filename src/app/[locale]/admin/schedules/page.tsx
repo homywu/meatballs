@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Package, Plus, Calendar, Clock, MapPin } from 'lucide-react';
 import { getProductionSchedules, deleteProductionSchedule } from '@/app/actions/admin';
 import type { ProductionSchedule } from '@/types/admin';
@@ -16,6 +17,7 @@ export default function SchedulesPage({ params }: { params: Promise<{ locale: st
     // import { useLocale } from 'next-intl';
 
     // Actually, easiest is just use useLocale()
+    const router = useRouter();
 
     const [schedules, setSchedules] = useState<ProductionSchedule[]>([]);
     const [loading, setLoading] = useState(true);
@@ -25,9 +27,17 @@ export default function SchedulesPage({ params }: { params: Promise<{ locale: st
 
     const fetchSchedules = async () => {
         setLoading(true);
-        const res = await getProductionSchedules();
-        if (res.success && res.data) {
-            setSchedules(res.data);
+        try {
+            const res = await getProductionSchedules();
+            if (res.success && res.data) {
+                setSchedules(res.data);
+            } else if (res.error === 'Unauthorized') {
+                router.push(`/${locale}`);
+            } else if (res.error) {
+                console.error('Error fetching schedules:', res.error);
+            }
+        } catch (err) {
+            console.error('Failed to fetch schedules:', err);
         }
         setLoading(false);
     };
@@ -84,8 +94,8 @@ export default function SchedulesPage({ params }: { params: Promise<{ locale: st
                                 <div>
                                     <div className="flex items-center gap-3 mb-2">
                                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${schedule.status === 'published' ? 'bg-green-100 text-green-800' :
-                                                schedule.status === 'draft' ? 'bg-slate-100 text-slate-600' :
-                                                    'bg-blue-100 text-blue-800'
+                                            schedule.status === 'draft' ? 'bg-slate-100 text-slate-600' :
+                                                'bg-blue-100 text-blue-800'
                                             }`}>
                                             {schedule.status}
                                         </span>
