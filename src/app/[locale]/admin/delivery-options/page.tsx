@@ -2,10 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { Plus, Trash2, MapPin, Truck } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { getDeliveryOptions, upsertDeliveryOption, deleteDeliveryOption } from '@/app/actions/admin';
 import type { DeliveryOption } from '@/types/admin';
 
 export default function DeliveryOptionsPage() {
+    const t = useTranslations();
     const [options, setOptions] = useState<DeliveryOption[]>([]);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
@@ -176,16 +178,28 @@ export default function DeliveryOptionsPage() {
                             </div>
 
                             {editForm.map_url && (
-                                <div className="rounded-xl overflow-hidden border border-slate-200 mt-2">
+                                <div className="rounded-lg overflow-hidden border border-slate-200 mt-2 h-32 relative group">
                                     <iframe
                                         src={editForm.map_url}
                                         width="100%"
-                                        height="250"
+                                        height="100%"
                                         style={{ border: 0 }}
+                                        className="pointer-events-none"
                                         allowFullScreen={false}
                                         loading="lazy"
                                         referrerPolicy="no-referrer-when-downgrade"
                                     ></iframe>
+                                    <a
+                                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(editForm.address || editForm.label || '')}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="absolute inset-0 z-10 bg-transparent flex items-start justify-start p-2"
+                                        title={t('orders.view_larger_map')}
+                                    >
+                                        <div className="bg-white/90 px-3 py-1.5 rounded shadow-sm text-blue-600 text-xs font-bold border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            {t('orders.view_larger_map')}
+                                        </div>
+                                    </a>
                                 </div>
                             )}
 

@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { ArrowLeft, Package, Calendar, DollarSign, MapPin, Store, CheckCircle, Clock, XCircle, Copy, CalendarClock } from 'lucide-react';
+import { Package, MapPin, CheckCircle, Clock, XCircle, Copy, CalendarClock, Info } from 'lucide-react';
 // Footer removed
 import type { Order } from '@/types/order';
 
@@ -18,6 +17,8 @@ export default function OrderListClient({ orders, error, locale }: OrderListClie
   const t = useTranslations();
   const router = useRouter();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showPaymentFor, setShowPaymentFor] = useState<string | null>(null);
+  const [copyEmailSuccess, setCopyEmailSuccess] = useState<boolean>(false);
 
   const copyToClipboard = async (text: string, orderId: string) => {
     try {
@@ -30,6 +31,7 @@ export default function OrderListClient({ orders, error, locale }: OrderListClie
   };
 
   const getStatusIcon = (status: string) => {
+    // pending', 'paid', 'completed', 'waitlist', 'cancelled
     switch (status) {
       case 'completed':
         return <CheckCircle className="w-5 h-5 text-green-600" />;
@@ -37,6 +39,10 @@ export default function OrderListClient({ orders, error, locale }: OrderListClie
         return <CheckCircle className="w-5 h-5 text-blue-600" />;
       case 'pending':
         return <Clock className="w-5 h-5 text-orange-600" />;
+      case 'waitlist':
+        return <Clock className="w-5 h-5 text-yellow-600" />;
+      case 'cancelled':
+        return <XCircle className="w-5 h-5 text-red-600" />;
       default:
         return <XCircle className="w-5 h-5 text-gray-600" />;
     }
@@ -50,6 +56,10 @@ export default function OrderListClient({ orders, error, locale }: OrderListClie
         return 'bg-blue-100 text-blue-700 border-blue-200';
       case 'pending':
         return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'waitlist':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'cancelled':
+        return 'bg-red-100 text-red-700 border-red-200';
       default:
         return 'bg-gray-100 text-gray-700 border-gray-200';
     }
@@ -116,7 +126,7 @@ export default function OrderListClient({ orders, error, locale }: OrderListClie
                           </span>
                           <button
                             onClick={() => copyToClipboard(order.reference_number!, order.id)}
-                            className="p-1 hover:bg-slate-100 rounded-md transition-colors text-slate-400 hover:text-orange-600"
+                            className="p-1 hover:bg-slate-100 rounded-md transition-colors text-slate-400 hover:text-orange-600 focus:outline-none"
                             title={t('success.copy')}
                           >
                             {copiedId === order.id ? (
@@ -211,15 +221,76 @@ export default function OrderListClient({ orders, error, locale }: OrderListClie
                 </div>
 
                 {/* Total */}
-                <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-                  <div className={`flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold ${getStatusColor(order.status)}`}>
+                <div className="flex items-start justify-between pt-4 border-t border-slate-200">
+                  <div className={`flex items-center gap-2 px-2 py-1 rounded-full border text-xs font-bold ${getStatusColor(order.status)}`}>
                     {getStatusIcon(order.status)}
                     <span className="capitalize">{t(`orders.status.${order.status}`)}</span>
                   </div>
-                  <span className="text-2xl font-bold text-orange-600">
-                    ${order.total_amount.toFixed(2)}
-                  </span>
+                  <div className="flex flex-col items-center gap-3">
+                    <span className="text-2xl font-bold text-orange-600">
+                      ${order.total_amount.toFixed(2)}
+                    </span>
+                    {(order.status === 'pending' || order.status === 'waitlist') && (
+                      <button
+                        onClick={() => setShowPaymentFor(showPaymentFor === order.id ? null : order.id)}
+                        className="text-orange-600 underline text-xs font-bold hover:underline flex items-center gap-1 focus:outline-none transition-all"
+                      >
+                        <Info className="w-3 h-3" />
+                        {t('orders.how_to_pay')}
+                      </button>
+                    )}
+                  </div>
                 </div>
+
+                {/* Payment Instructions */}
+                {showPaymentFor === order.id && (
+                  <div className="mt-4 p-4 bg-orange-50 rounded-2xl border border-orange-100 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="space-y-3">
+                      <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                        <span className="bg-slate-800 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">1</span>
+                        {t('success.step1')}
+                      </p>
+                      <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-orange-200">
+                        <code className="text-slate-800 font-mono text-sm font-medium">carfield.ni@gmail.com</code>
+                        <button
+                          onClick={async () => {
+                            await navigator.clipboard.writeText('carfield.ni@gmail.com');
+                            setCopyEmailSuccess(true);
+                            setTimeout(() => setCopyEmailSuccess(false), 2000);
+                          }}
+                          className="text-xs bg-slate-50 px-2 py-1 rounded shadow-sm border border-slate-200 text-slate-600 flex items-center gap-1 hover:bg-white active:scale-95 transition-all focus:outline-none"
+                        >
+                          {copyEmailSuccess ? <CheckCircle size={12} className="text-green-500" /> : <Copy size={12} />}
+                          {copyEmailSuccess ? t('success.copied') : t('success.copy')}
+                        </button>
+                      </div>
+
+                      <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                        <span className="bg-slate-800 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">2</span>
+                        {t('success.step2')}
+                      </p>
+                      {order.reference_number && (
+                        <div className="flex items-center justify-between bg-yellow-50 p-3 rounded-xl border border-yellow-200">
+                          <span className="text-yellow-800 font-bold ml-1 text-xs">REF:</span>
+                          <code className="text-slate-900 font-mono text-base font-black tracking-wider">{order.reference_number}</code>
+                          <button
+                            onClick={() => copyToClipboard(order.reference_number!, order.id)}
+                            className="text-xs bg-white px-2 py-1 rounded shadow-sm border border-yellow-200 text-yellow-700 flex items-center gap-1 active:scale-95 transition-all focus:outline-none"
+                          >
+                            {copiedId === order.id ? <CheckCircle size={12} className="text-green-500" /> : <Copy size={12} />}
+                            {copiedId === order.id ? t('success.copied') : t('success.copy')}
+                          </button>
+                        </div>
+                      )}
+                      <p className="text-xs text-red-600 bg-red-50 p-2 rounded-lg border border-red-100 leading-relaxed">
+                        {t('success.step2Note', { ref: order.reference_number || '(No Ref)' })}
+                      </p>
+                      <p className="text-[10px] text-slate-400 text-center pt-1">
+                        {t('success.contactSupport')}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Notes */}
                 {order.notes && (

@@ -31,7 +31,9 @@
     "view_larger_map": "View larger map",
     "ref_prefix": "Order REF #:",
     "order_date": "Order Date",
-    "legacy_order_info": "Delivery info unavailable (Legacy Order)"
+    "legacy_order_info": "Delivery info unavailable (Legacy Order)",
+    "order_by": "Order by",
+    "how_to_pay": "How to Pay"
   },
   "hero": {
     "badge": "Sage Hill's Most Authentic",

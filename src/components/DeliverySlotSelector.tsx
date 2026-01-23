@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Calendar, Clock, MapPin } from 'lucide-react';
 import { getAvailableDeliverySlots } from '@/app/[locale]/actions';
 
@@ -28,6 +28,7 @@ interface DeliverySlotSelectorProps {
 
 export default function DeliverySlotSelector({ selectedSlotId, onSelectSlot, error }: DeliverySlotSelectorProps) {
     const t = useTranslations();
+    const locale = useLocale();
     const [slots, setSlots] = useState<DeliverySlot[]>([]);
     const [loading, setLoading] = useState(true);
     const [fetchError, setFetchError] = useState<string | null>(null);
@@ -65,10 +66,10 @@ export default function DeliverySlotSelector({ selectedSlotId, onSelectSlot, err
         </div>;
     }
 
-    // Group slots by Date
+    // Group slots by Date using a consistent key format (ISO date)
     const groupedSlots: Record<string, DeliverySlot[]> = {};
     slots.forEach(slot => {
-        const date = new Date(slot.delivery_time).toLocaleDateString(); // Local date string
+        const date = new Date(slot.delivery_time).toISOString().split('T')[0];
         if (!groupedSlots[date]) groupedSlots[date] = [];
         groupedSlots[date].push(slot);
     });
@@ -86,13 +87,14 @@ export default function DeliverySlotSelector({ selectedSlotId, onSelectSlot, err
                     <div key={date} className="space-y-2">
                         <h4 className="text-sm font-bold text-slate-700 sticky top-0 bg-white py-1 z-10 flex items-center gap-2">
                             <Calendar size={14} className="text-orange-500" />
-                            {new Date(dateSlots[0].delivery_time).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                            {new Date(dateSlots[0].delivery_time).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                         </h4>
                         <div className="grid gap-2">
                             {dateSlots.map(slot => {
                                 const isSelected = selectedSlotId === slot.id;
-                                const timeStr = new Date(slot.delivery_time).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-                                const cutoffStr = slot.cutoff_time ? new Date(slot.cutoff_time).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', month: 'short', day: 'numeric' }) : null;
+                                const dateObj = new Date(slot.delivery_time);
+                                const timeStr = dateObj.toLocaleTimeString(locale === 'zh' ? 'zh-CN' : 'en-US', { hour: 'numeric', minute: '2-digit' });
+                                const cutoffStr = slot.cutoff_time ? new Date(slot.cutoff_time).toLocaleTimeString(locale === 'zh' ? 'zh-CN' : 'en-US', { hour: 'numeric', minute: '2-digit', month: 'short', day: 'numeric' }) : null;
 
                                 return (
                                     <button
@@ -121,7 +123,7 @@ export default function DeliverySlotSelector({ selectedSlotId, onSelectSlot, err
                                                             </span>
                                                         )}
                                                         {slot.delivery_option.description && (
-                                                            <span className="block text-slate-400 font-light max-w-[200px] truncate">
+                                                            <span className="block text-slate-400 font-light max-w-[300px]">
                                                                 {slot.delivery_option.description}
                                                             </span>
                                                         )}
@@ -137,7 +139,7 @@ export default function DeliverySlotSelector({ selectedSlotId, onSelectSlot, err
                                         </div>
                                         {cutoffStr && (
                                             <div className="mt-2 text-[10px] text-red-500 bg-red-50 inline-block px-2 py-0.5 rounded-full border border-red-100">
-                                                Order by {cutoffStr}
+                                                {t('orders.order_by')} {cutoffStr}
                                             </div>
                                         )}
                                     </button>
@@ -149,16 +151,28 @@ export default function DeliverySlotSelector({ selectedSlotId, onSelectSlot, err
             </div>
 
             {selectedSlot?.delivery_option?.map_url && (
-                <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 mt-4">
+                <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 mt-4 relative group h-40">
                     <iframe
                         src={selectedSlot.delivery_option.map_url}
                         width="100%"
-                        height="200"
+                        height="100%"
                         style={{ border: 0 }}
+                        className="pointer-events-none"
                         allowFullScreen={false}
                         loading="lazy"
                         referrerPolicy="no-referrer-when-downgrade"
                     ></iframe>
+                    <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedSlot.delivery_option.address || selectedSlot.delivery_option.label || '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="absolute inset-0 z-10 bg-transparent flex items-start justify-start p-2"
+                        title={t('orders.view_larger_map')}
+                    >
+                        <div className="bg-white/90 px-3 py-1.5 rounded shadow-sm text-blue-600 text-xs font-bold border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {t('orders.view_larger_map')}
+                        </div>
+                    </a>
                 </div>
             )}
             {error && <p className="text-sm text-red-600 mt-1">{error}</p>}

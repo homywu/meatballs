@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Package, Plus, Calendar, Clock, MapPin } from 'lucide-react';
+import { useLocale } from 'next-intl';
 import { getProductionSchedules, deleteProductionSchedule } from '@/app/actions/admin';
 import type { ProductionSchedule } from '@/types/admin';
 
@@ -18,6 +19,7 @@ export default function SchedulesPage({ params }: { params: Promise<{ locale: st
 
     // Actually, easiest is just use useLocale()
     const router = useRouter();
+    const locale = useLocale();
 
     const [schedules, setSchedules] = useState<ProductionSchedule[]>([]);
     const [loading, setLoading] = useState(true);
@@ -59,11 +61,8 @@ export default function SchedulesPage({ params }: { params: Promise<{ locale: st
     // I'll grab it from the first segment of pathname via window if in browser.
     // Actually, let's just use `usePathname` from `next/navigation` to construct links.
 
-    const [locale, setLocale] = useState('en');
-    useEffect(() => {
-        const parts = window.location.pathname.split('/');
-        if (parts[1]) setLocale(parts[1]);
-    }, []);
+    // Locale handled by useLocale hook now
+    // Deleted manual window.location hack
 
     return (
         <div className="p-8 max-w-5xl mx-auto">
@@ -118,7 +117,9 @@ export default function SchedulesPage({ params }: { params: Promise<{ locale: st
                                         {schedule.deliveries?.map(d => (
                                             <div key={d.id} className="text-xs bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg flex items-center gap-1.5 text-slate-500">
                                                 <Clock size={12} />
-                                                <span>{new Date(d.delivery_time).toLocaleDateString()} {new Date(d.delivery_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                <span>
+                                                    {new Date(d.delivery_time).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric' })} {new Date(d.delivery_time).toLocaleTimeString(locale === 'zh' ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
                                                 <span className="text-slate-300">|</span>
                                                 <span>{d.delivery_option?.label}</span>
                                             </div>
