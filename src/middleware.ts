@@ -17,7 +17,7 @@ export default auth((req) => {
     return intlMiddleware(req);
   }
 
-  // Protect order history route - require authentication
+  // Protect order list route - require authentication
   if (pathname.match(/^\/(zh|en)\/orders/)) {
     if (!req.auth) {
       const signInUrl = new URL('/api/auth/signin', req.url);
