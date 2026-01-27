@@ -102,7 +102,14 @@
     "step1": "在 Safari 瀏覽器中，點擊屏幕底部的分享按鈕（方形圖標，帶向上箭頭）",
     "step2": "在分享菜單中向下滾動，找到並點擊「添加到主屏幕」選項",
     "step3": "點擊右上角的「添加」按鈕確認",
-    "gotIt": "我知道了"
+    "gotIt": "我知道了",
+    "manualTitle": "安装App(下單更方便！)",
+    "desktopTitle": "在电脑上安装",
+    "desktopStep1": "点击地址栏右侧的安装图标（监视器图标）",
+    "desktopStep2": "在弹出的窗口中点击「安装」",
+    "androidTitle": "在 Android 上安装",
+    "androidStep1": "点击浏览器菜单（右上角三个点）",
+    "androidStep2": "选择「安装应用」或「添加到主屏幕」"
   },
   "metadata": {
     "title": "潮·作 | CRAFT & CHAO",

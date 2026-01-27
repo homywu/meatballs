@@ -50,6 +50,12 @@ convert public/icon.svg -resize 512x512 public/icon-512.png
 
 ## 🧪 测试
 
+### Desktop (Chrome/Edge)
+
+1. 在桌面浏览器打开网站
+2. 如果满足安装条件，地址栏右侧会出现安装图标，或者页面下方会出现"添加到主屏幕"提示
+3. 点击"立即添加"即可安装为桌面应用
+
 ### Android (Chrome)
 
 1. 在 Android 设备上打开网站
@@ -68,10 +74,10 @@ convert public/icon.svg -resize 512x512 public/icon-512.png
 
 ## 📝 注意事项
 
-1. **HTTPS 要求**: PWA 功能需要 HTTPS（生产环境）
-2. **Service Worker**: 当前实现不需要 Service Worker，但如果需要离线功能，可以后续添加
+1. **HTTPS 要求**: PWA 功能需要 HTTPS（生产环境）。本地开发环境建议使用 `localhost` 或配置 HTTPS
+2. **Service Worker**: 已添加 `public/sw.js`，这是实现桌面和 Android 安装提示的关键
 3. **图标格式**: 必须使用 PNG 格式，不支持 SVG
-4. **测试环境**: 在本地开发时，某些 PWA 功能可能不可用，需要在生产环境或使用 HTTPS 的测试环境测试
+4. **清理缓存**: 如果修改了 `manifest.json` 或 `sw.js`，建议在浏览器开发者工具的 "Application" 面板中执行 "Clear storage" 或手动 "Unregister" Service Worker 以确保更改生效
 
 ## 🚀 部署
 

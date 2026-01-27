@@ -2,7 +2,7 @@
 
 import { useState, useEffect, startTransition } from 'react';
 import { useTranslations } from 'next-intl';
-import { Download, X, Share } from 'lucide-react';
+import { Download, X, Share, HelpCircle, Monitor, Smartphone } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -13,43 +13,56 @@ export default function AddToHomeScreen() {
   const t = useTranslations('addToHome');
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIOSPrompt, setShowIOSPrompt] = useState(false);
+  const [showManualPrompt, setShowManualPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   // Detect iOS/installed status after hydration
   useEffect(() => {
-    // Batch all state updates together using startTransition
     const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as Window & { MSStream?: unknown }).MSStream;
-    const installed = window.matchMedia('(display-mode: standalone)').matches;
+    const standalone = window.matchMedia('(display-mode: standalone)').matches;
+    const dismissed = localStorage.getItem('pwa_prompt_dismissed') === 'true';
 
     startTransition(() => {
       setIsMounted(true);
       setIsIOS(ios);
-      setIsInstalled(installed);
+      setIsStandalone(standalone);
+      setIsDismissed(dismissed);
     });
   }, []);
 
   useEffect(() => {
     // 如果已安装，不需要设置其他内容
-    if (isInstalled || !isMounted) {
+    if (isStandalone || !isMounted) {
       return;
     }
 
-    // Android: 监听 beforeinstallprompt 事件
+    // Android/Desktop: 监听 beforeinstallprompt 事件
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
+      // If we got the prompt, we can show it again even if it was dismissed before
+      // as the browser decided it's a good time to prompt
+      setIsDismissed(false);
+    };
+
+    const handleAppInstalled = () => {
+      setDeferredPrompt(null);
+      setIsStandalone(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, [isInstalled, isMounted]);
+  }, [isStandalone, isMounted]);
 
-  const handleAndroidInstall = async () => {
+  const handleInstallClick = async () => {
     if (!deferredPrompt) return;
 
     deferredPrompt.prompt();
@@ -57,8 +70,14 @@ export default function AddToHomeScreen() {
 
     if (outcome === 'accepted') {
       setDeferredPrompt(null);
-      setIsInstalled(true);
+      setIsStandalone(true);
     }
+  };
+
+  const handleDismiss = () => {
+    setIsDismissed(true);
+    localStorage.setItem('pwa_prompt_dismissed', 'true');
+    // We could make this expire, but for now just hide it for the session
   };
 
   // Don't render anything until after hydration to prevent mismatch
@@ -66,42 +85,127 @@ export default function AddToHomeScreen() {
     return null;
   }
 
-  // 如果已安装，不显示按钮
-  if (isInstalled) {
+  // 如果已安装或已关闭，不显示按钮
+  if (isStandalone || isDismissed) {
     return null;
   }
 
-  // Android: 显示安装提示
-  if (deferredPrompt && !isIOS) {
-    return (
-      <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:w-80">
-        <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0">
-              <Download className="w-5 h-5 text-orange-500" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 mb-1">{t('title')}</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                {t('description')}
-              </p>
-              <button
-                onClick={handleAndroidInstall}
-                className="w-full bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors"
-              >
-                {t('addNow')}
-              </button>
+  // Android / Desktop Chrome: 显示安装提示
+  if (!isIOS) {
+    // Case 1: Browser fired beforeinstallprompt (Native flow available)
+    if (deferredPrompt) {
+      return (
+        <div className="fixed bottom-24 left-4 right-4 z-[60] md:bottom-6 md:right-6 md:left-auto md:w-80">
+          <div className="relative bg-white rounded-lg shadow-2xl border border-gray-100 p-5 animate-in slide-in-from-bottom-5 duration-300">
+            <button
+              onClick={handleDismiss}
+              className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                <Download className="w-5 h-5 text-orange-500" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-gray-900 mb-1">{t('title')}</h3>
+                <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                  {t('description')}
+                </p>
+                <button
+                  onClick={handleInstallClick}
+                  className="w-full bg-orange-500 text-white px-4 py-2.5 rounded-xl font-semibold hover:bg-orange-600 active:scale-[0.98] transition-all shadow-md shadow-orange-200"
+                >
+                  {t('addNow')}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      );
+    }
+
+    // Case 2: No native prompt yet, but we want to show a manual guide option
+    // This is especially useful for users who uninstalled or for desktop discovery
+    return (
+      <>
+        <div className="fixed bottom-24 left-4 right-4 z-[60] md:bottom-6 md:right-6 md:left-auto md:w-64">
+          <button
+            onClick={() => setShowManualPrompt(true)}
+            className="w-full bg-white border border-orange-100 text-orange-600 px-4 py-3 rounded-2xl font-semibold shadow-xl hover:bg-orange-50 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group"
+          >
+            <HelpCircle className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+            {t('manualTitle')}
+          </button>
+        </div>
+
+        {showManualPrompt && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 animate-in zoom-in-95 duration-300">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-gray-900">{t('manualTitle')}</h3>
+                <button
+                  onClick={() => setShowManualPrompt(false)}
+                  className="p-2 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Monitor className="w-5 h-5 text-orange-600" />
+                    <h4 className="font-bold text-gray-900">{t('desktopTitle')}</h4>
+                  </div>
+                  <ol className="space-y-3 pl-2">
+                    <li className="text-sm text-gray-700 flex gap-2">
+                      <span className="font-bold text-orange-600">1.</span>
+                      {t('desktopStep1')}
+                    </li>
+                    <li className="text-sm text-gray-700 flex gap-2">
+                      <span className="font-bold text-orange-600">2.</span>
+                      {t('desktopStep2')}
+                    </li>
+                  </ol>
+                </div>
+
+                <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Smartphone className="w-5 h-5 text-blue-600" />
+                    <h4 className="font-bold text-gray-900">{t('androidTitle')}</h4>
+                  </div>
+                  <ol className="space-y-3 pl-2">
+                    <li className="text-sm text-gray-700 flex gap-2">
+                      <span className="font-bold text-blue-600">1.</span>
+                      {t('androidStep1')}
+                    </li>
+                    <li className="text-sm text-gray-700 flex gap-2">
+                      <span className="font-bold text-blue-600">2.</span>
+                      {t('androidStep2')}
+                    </li>
+                  </ol>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowManualPrompt(false)}
+                className="mt-8 w-full bg-gray-900 text-white px-4 py-3 rounded-2xl font-bold hover:bg-black transition-colors"
+              >
+                {t('gotIt')}
+              </button>
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 
   // iOS: 显示添加提示
   if (isIOS && !showIOSPrompt) {
     return (
-      <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:w-80">
+      <div className="fixed bottom-24 left-4 right-4 z-[60] md:left-auto md:right-4 md:w-80">
         <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">

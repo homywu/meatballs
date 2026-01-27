@@ -102,7 +102,14 @@
     "step1": "In Safari browser, tap the share button at the bottom of the screen (square icon with upward arrow)",
     "step2": "Scroll down in the share menu, find and tap \"Add to Home Screen\" option",
     "step3": "Tap the \"Add\" button in the top right corner to confirm",
-    "gotIt": "Got It"
+    "gotIt": "Got It",
+    "manualTitle": "Install Our App!",
+    "desktopTitle": "Install on Desktop",
+    "desktopStep1": "Tap the Install icon on the right side of the address bar",
+    "desktopStep2": "Click 'Install' in the confirmation popup",
+    "androidTitle": "Install on Android",
+    "androidStep1": "Tap the browser menu (three dots icon)",
+    "androidStep2": "Select 'Install app' or 'Add to home screen'"
   },
   "metadata": {
     "title": "潮·作 | CRAFT & CHAO",
