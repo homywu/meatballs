@@ -80,220 +80,200 @@ export default function AddToHomeScreen() {
     // We could make this expire, but for now just hide it for the session
   };
 
-  // Don't render anything until after hydration to prevent mismatch
-  if (!isMounted) {
-    return null;
-  }
+  // --- Internal Components for Consistency ---
 
-  // 如果已安装或已关闭，不显示按钮
-  if (isStandalone || isDismissed) {
-    return null;
-  }
+  const MiniPrompt = ({
+    icon: Icon,
+    title,
+    description,
+    actionText,
+    onAction,
+    onDismiss
+  }: {
+    icon: any;
+    title: string;
+    description?: string;
+    actionText: string;
+    onAction: () => void;
+    onDismiss?: () => void;
+  }) => (
+    <div className="fixed bottom-24 left-4 right-4 z-[60] md:bottom-6 md:right-6 md:left-auto md:w-80 animate-in slide-in-from-bottom-10 duration-700">
+      <div className="relative bg-white/95 backdrop-blur-sm rounded-[2rem] shadow-2xl border border-orange-100 p-5 flex flex-col gap-4">
+        {onDismiss && (
+          <button
+            onClick={onDismiss}
+            className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 bg-slate-50 rounded-full transition-colors active:scale-95"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
 
-  // Android / Desktop Chrome: 显示安装提示
-  if (!isIOS) {
-    // Case 1: Browser fired beforeinstallprompt (Native flow available)
-    if (deferredPrompt) {
-      return (
-        <div className="fixed bottom-24 left-4 right-4 z-[60] md:bottom-6 md:right-6 md:left-auto md:w-80">
-          <div className="relative bg-white rounded-lg shadow-2xl border border-gray-100 p-5 animate-in slide-in-from-bottom-5 duration-300">
-            <button
-              onClick={handleDismiss}
-              className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-                <Download className="w-5 h-5 text-orange-500" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-gray-900 mb-1">{t('title')}</h3>
-                <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                  {t('description')}
-                </p>
-                <button
-                  onClick={handleInstallClick}
-                  className="w-full bg-orange-500 text-white px-4 py-2.5 rounded-xl font-semibold hover:bg-orange-600 active:scale-[0.98] transition-all shadow-md shadow-orange-200"
-                >
-                  {t('addNow')}
-                </button>
-              </div>
-            </div>
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl flex items-center justify-center border border-orange-200/50">
+            <Icon className="w-6 h-6 text-orange-600" />
+          </div>
+          <div className="flex-1 pt-1">
+            <h3 className="font-bold text-slate-900 leading-tight">{title}</h3>
+            {description && (
+              <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+                {description}
+              </p>
+            )}
           </div>
         </div>
-      );
-    }
 
-    // Case 2: No native prompt yet, but we want to show a manual guide option
-    // This is especially useful for users who uninstalled or for desktop discovery
+        <button
+          onClick={onAction}
+          className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3.5 rounded-2xl font-bold hover:shadow-lg hover:shadow-orange-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+        >
+          {actionText}
+        </button>
+      </div>
+    </div>
+  );
+
+  const StepItem = ({ number, text }: { number: number; text: string }) => (
+    <div className="flex gap-4 items-start group">
+      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-100 text-orange-600 font-bold flex items-center justify-center text-sm border border-orange-200 group-hover:scale-110 transition-transform">
+        {number}
+      </div>
+      <p className="text-slate-700 text-sm leading-relaxed pt-1">{text}</p>
+    </div>
+  );
+
+  const Modal = ({
+    title,
+    children,
+    onClose
+  }: {
+    title: string;
+    children: React.ReactNode;
+    onClose: () => void;
+  }) => (
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-500">
+      <div className="bg-[#FDFBF7] rounded-[2.5rem] shadow-3xl max-w-sm w-full p-8 animate-in zoom-in-95 duration-300 relative border border-white">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{title}</h3>
+          <button
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-slate-600 bg-white rounded-full transition-colors border border-slate-100 shadow-sm active:scale-90"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="space-y-6">
+          {children}
+        </div>
+
+        <button
+          onClick={onClose}
+          className="mt-8 w-full bg-slate-900 text-white px-6 py-4 rounded-2xl font-bold hover:bg-black transition-all active:scale-95 shadow-lg shadow-slate-200"
+        >
+          {t('gotIt')}
+        </button>
+      </div>
+    </div>
+  );
+
+  // --- Render Logic ---
+
+  if (!isMounted || isStandalone || isDismissed) {
+    return null;
+  }
+
+  // Android / Desktop Native Prompt
+  if (!isIOS && deferredPrompt) {
+    return (
+      <MiniPrompt
+        icon={Download}
+        title={t('title')}
+        description={t('description')}
+        actionText={t('addNow')}
+        onAction={handleInstallClick}
+        onDismiss={handleDismiss}
+      />
+    );
+  }
+
+  // Android / Desktop Manual Guide
+  if (!isIOS && !deferredPrompt) {
     return (
       <>
-        <div className="fixed bottom-24 left-4 right-4 z-[60] md:bottom-6 md:right-6 md:left-auto md:w-64">
+        <div className="fixed bottom-24 left-4 right-4 z-[60] md:bottom-6 md:right-6 md:left-auto md:w-64 animate-in slide-in-from-bottom-10 duration-700">
           <button
             onClick={() => setShowManualPrompt(true)}
-            className="w-full bg-white border border-orange-100 text-orange-600 px-4 py-3 rounded-2xl font-semibold shadow-xl hover:bg-orange-50 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group"
+            className="w-full bg-white/95 backdrop-blur-sm border border-orange-100 text-orange-600 px-6 py-4 rounded-[2rem] font-bold shadow-2xl hover:bg-orange-50 active:scale-95 transition-all flex items-center justify-center gap-3 group"
           >
             <HelpCircle className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-            {t('manualTitle')}
+            {t('installTitle')}
           </button>
         </div>
 
         {showManualPrompt && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 animate-in zoom-in-95 duration-300">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900">{t('manualTitle')}</h3>
-                <button
-                  onClick={() => setShowManualPrompt(false)}
-                  className="p-2 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="space-y-6">
-                <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Monitor className="w-5 h-5 text-orange-600" />
-                    <h4 className="font-bold text-gray-900">{t('desktopTitle')}</h4>
-                  </div>
-                  <ol className="space-y-3 pl-2">
-                    <li className="text-sm text-gray-700 flex gap-2">
-                      <span className="font-bold text-orange-600">1.</span>
-                      {t('desktopStep1')}
-                    </li>
-                    <li className="text-sm text-gray-700 flex gap-2">
-                      <span className="font-bold text-orange-600">2.</span>
-                      {t('desktopStep2')}
-                    </li>
-                  </ol>
+          <Modal title={t('installTitle')} onClose={() => setShowManualPrompt(false)}>
+            <div className="space-y-8">
+              <section>
+                <div className="flex items-center gap-2 mb-4">
+                  <Monitor className="w-5 h-5 text-orange-600" />
+                  <h4 className="font-bold text-slate-900">{t('desktopTitle')}</h4>
                 </div>
-
-                <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Smartphone className="w-5 h-5 text-blue-600" />
-                    <h4 className="font-bold text-gray-900">{t('androidTitle')}</h4>
-                  </div>
-                  <ol className="space-y-3 pl-2">
-                    <li className="text-sm text-gray-700 flex gap-2">
-                      <span className="font-bold text-blue-600">1.</span>
-                      {t('androidStep1')}
-                    </li>
-                    <li className="text-sm text-gray-700 flex gap-2">
-                      <span className="font-bold text-blue-600">2.</span>
-                      {t('androidStep2')}
-                    </li>
-                  </ol>
+                <div className="space-y-4 ml-1">
+                  <StepItem number={1} text={t('desktopStep1')} />
+                  <StepItem number={2} text={t('desktopStep2')} />
                 </div>
-              </div>
+              </section>
 
-              <button
-                onClick={() => setShowManualPrompt(false)}
-                className="mt-8 w-full bg-gray-900 text-white px-4 py-3 rounded-2xl font-bold hover:bg-black transition-colors"
-              >
-                {t('gotIt')}
-              </button>
+              <div className="h-px bg-slate-100" />
+
+              <section>
+                <div className="flex items-center gap-2 mb-4">
+                  <Smartphone className="w-5 h-5 text-blue-600" />
+                  <h4 className="font-bold text-slate-900">{t('androidTitle')}</h4>
+                </div>
+                <div className="space-y-4 ml-1">
+                  <StepItem number={1} text={t('androidStep1')} />
+                  <StepItem number={2} text={t('androidStep2')} />
+                </div>
+              </section>
             </div>
-          </div>
+          </Modal>
         )}
       </>
     );
   }
 
-  // iOS: 显示添加提示
-  if (isIOS && !showIOSPrompt) {
+  // iOS Prompts
+  if (isIOS) {
     return (
-      <div className="fixed bottom-24 left-4 right-4 z-[60] md:left-auto md:right-4 md:w-80">
-        <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0">
-              <Share className="w-5 h-5 text-orange-500" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 mb-1">{t('iosTitle')}</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                {t('iosDescription')}
-              </p>
-              <button
-                onClick={() => setShowIOSPrompt(true)}
-                className="w-full bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors"
-              >
-                {t('viewSteps')}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+      <>
+        {!showIOSPrompt && (
+          <MiniPrompt
+            icon={Share}
+            title={t('title')}
+            description={t('description')}
+            actionText={t('viewSteps')}
+            onAction={() => setShowIOSPrompt(true)}
+            onDismiss={handleDismiss}
+          />
+        )}
 
-  // iOS: 显示详细步骤
-  if (isIOS && showIOSPrompt) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">{t('iosTitle')}</h3>
-            <button
-              onClick={() => setShowIOSPrompt(false)}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
-              <p className="text-sm text-orange-800 font-medium mb-1">{t('important')}</p>
-              <p className="text-xs text-orange-700">
+        {showIOSPrompt && (
+          <Modal title={t('title')} onClose={() => setShowIOSPrompt(false)}>
+            <div className="bg-orange-50/50 border border-orange-100 rounded-[1.5rem] p-4 mb-2">
+              <p className="text-xs text-orange-800 font-bold uppercase tracking-wider mb-1">{t('important')}</p>
+              <p className="text-xs text-orange-700 leading-relaxed">
                 {t('importantNote')}
               </p>
             </div>
-
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-semibold">
-                1
-              </div>
-              <div className="flex-1">
-                <p className="text-gray-700">
-                  {t('step1')}
-                </p>
-              </div>
+            <div className="space-y-5">
+              <StepItem number={1} text={t('step1')} />
+              <StepItem number={2} text={t('step2')} />
+              <StepItem number={3} text={t('step3')} />
             </div>
-
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-semibold">
-                2
-              </div>
-              <div className="flex-1">
-                <p className="text-gray-700">
-                  {t('step2')}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-semibold">
-                3
-              </div>
-              <div className="flex-1">
-                <p className="text-gray-700">
-                  {t('step3')}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setShowIOSPrompt(false)}
-            className="mt-6 w-full bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors"
-          >
-            {t('gotIt')}
-          </button>
-        </div>
-      </div>
+          </Modal>
+        )}
+      </>
     );
   }
 
