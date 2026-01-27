@@ -33,7 +33,9 @@
     "order_date": "Order Date",
     "legacy_order_info": "Delivery info unavailable (Legacy Order)",
     "order_by": "Order by",
-    "how_to_pay": "How to Pay"
+    "how_to_pay": "How to Pay",
+    "private_chat": "Contact us (Private Chat)",
+    "no_slots_available": "No delivery slots available at the moment."
   },
   "hero": {
     "badge": "Sage Hill's Most Authentic",
@@ -62,7 +64,8 @@
       "phone": "Phone Number (for e-Transfer verification)",
       "phonePlaceholder": "403-XXX-XXXX",
       "address": "Delivery Address",
-      "addressPlaceholder": "Please enter detailed street address..."
+      "addressPlaceholder": "Please enter detailed street address...",
+      "privateChatDescription": "Contact us to arrange delivery time"
     },
     "items": "items",
     "checkout": "Checkout",

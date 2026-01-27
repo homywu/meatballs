@@ -33,7 +33,9 @@
     "order_date": "訂單日期",
     "legacy_order_info": "無配送信息 (舊訂單)",
     "order_by": "訂單截止時間",
-    "how_to_pay": "如何付款"
+    "how_to_pay": "如何付款",
+    "private_chat": "私聊",
+    "no_slots_available": "目前沒有可用的配送時段。"
   },
   "hero": {
     "badge": "Sage Hill 最正宗",
@@ -62,7 +64,8 @@
       "phone": "電話號碼 (e-Transfer 對賬用)",
       "phonePlaceholder": "403-XXX-XXXX",
       "address": "送貨地址",
-      "addressPlaceholder": "請輸入詳細街道地址..."
+      "addressPlaceholder": "請輸入詳細街道地址...",
+      "privateChatDescription": "聯繫我們安排送貨時間"
     },
     "items": "件商品",
     "checkout": "去買單",

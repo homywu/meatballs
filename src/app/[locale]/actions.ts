@@ -233,71 +233,65 @@ export async function submitOrder(orderData: OrderData) {
       };
     }
 
-    // 1. Validate Slot & Inventory
-    // Fetch the slot to know the schedule_id and ensure it's PUBLISHED
-    const { data: slot, error: slotError } = await supabaseAdmin
-      .from('schedule_deliveries')
-      .select('id, schedule_id, delivery_time, cutoff_time, production_schedules!inner(status)')
-      .eq('id', orderData.schedule_delivery_id)
-      .eq('production_schedules.status', 'published')
-      .single();
+    const isPrivateChat = orderData.schedule_delivery_id === 'PRIVATE_CHAT';
+    let validatedSlot = null;
 
-    if (slotError || !slot) {
-      return { success: false, error: 'Invalid delivery slot' };
-    }
+    if (!isPrivateChat) {
+      // 1. Validate Slot & Inventory
+      // Fetch the slot to know the schedule_id and ensure it's PUBLISHED
+      const { data: slot, error: slotError } = await supabaseAdmin
+        .from('schedule_deliveries')
+        .select('id, schedule_id, delivery_time, cutoff_time, production_schedules!inner(status)')
+        .eq('id', orderData.schedule_delivery_id)
+        .eq('production_schedules.status', 'published')
+        .single();
 
-    // Check cutoff
-    const now = new Date();
-    if (slot.cutoff_time && new Date(slot.cutoff_time) <= now) {
-      return { success: false, error: 'This delivery slot is no longer available (cutoff time passed)' };
-    }
-
-    // Check inventory SPECIFIC TO THIS SCHEDULE
-    const { data: production } = await supabaseAdmin
-      .from('schedule_products')
-      .select('product_id, quantity')
-      .eq('schedule_id', slot.schedule_id);
-
-    const { data: used } = await supabaseAdmin
-      .from('order_items')
-      .select('quantity, product_id, orders!inner(schedule_delivery_id)')
-      .eq('orders.schedule_delivery_id', slot.id) // Inventory is per Delivery Slot? NO, per Schedule.
-    // Wait, multiple delivery slots can belong to the same schedule (same production batch).
-    // So we need to sum usage across ALL delivery slots of this schedule.
-    // Correction: fetch orders where linked schedule_delivery's schedule_id is THIS schedule_id.
-    // This requires a join which is hard in one go. 
-    // Alternative: We already fetched slot.schedule_id.
-    // We need orders -> schedule_delivery -> schedule_id.
-    // Let's filter orders by `schedule_delivery_id` IN (all slots of this schedule).
-
-    // Get all slots for this schedule
-    const { data: allSlots } = await supabaseAdmin
-      .from('schedule_deliveries')
-      .select('id')
-      .eq('schedule_id', slot.schedule_id);
-
-    const allSlotIds = allSlots?.map(s => s.id) || [];
-
-    const { data: usedInSchedule } = await supabaseAdmin
-      .from('order_items')
-      .select('quantity, product_id, orders!inner(status, schedule_delivery_id)')
-      .in('orders.status', ['pending', 'paid', 'completed'])
-      .in('orders.schedule_delivery_id', allSlotIds);
-
-    // Calculate remaining for this schedule
-    const scheduleInventory: Record<string, number> = {};
-    production?.forEach(p => scheduleInventory[p.product_id] = p.quantity);
-    usedInSchedule?.forEach(u => {
-      if (scheduleInventory[u.product_id]) {
-        scheduleInventory[u.product_id] -= u.quantity;
+      if (slotError || !slot) {
+        return { success: false, error: 'Invalid delivery slot' };
       }
-    });
 
-    // Check if enough stock
-    for (const item of orderData.items) {
-      const available = scheduleInventory[item.id] || 0; // item.id is product_id
-      if (available < item.quantity) {
-        return { success: false, error: `Insufficient stock for ${item.name} for this delivery date.` };
+      // Check cutoff
+      const now = new Date();
+      if (slot.cutoff_time && new Date(slot.cutoff_time) <= now) {
+        return { success: false, error: 'This delivery slot is no longer available (cutoff time passed)' };
+      }
+      validatedSlot = slot;
+
+      // Check inventory SPECIFIC TO THIS SCHEDULE
+      const { data: production } = await supabaseAdmin
+        .from('schedule_products')
+        .select('product_id, quantity')
+        .eq('schedule_id', validatedSlot.schedule_id);
+
+      // Get all slots for this schedule
+      const { data: allSlots } = await supabaseAdmin
+        .from('schedule_deliveries')
+        .select('id')
+        .eq('schedule_id', validatedSlot.schedule_id);
+
+      const allSlotIds = allSlots?.map(s => s.id) || [];
+
+      const { data: usedInSchedule } = await supabaseAdmin
+        .from('order_items')
+        .select('quantity, product_id, orders!inner(status, schedule_delivery_id)')
+        .in('orders.status', ['pending', 'paid', 'completed'])
+        .in('orders.schedule_delivery_id', allSlotIds);
+
+      // Calculate remaining for this schedule
+      const scheduleInventory: Record<string, number> = {};
+      production?.forEach(p => scheduleInventory[p.product_id] = p.quantity);
+      usedInSchedule?.forEach(u => {
+        if (scheduleInventory[u.product_id]) {
+          scheduleInventory[u.product_id] -= u.quantity;
+        }
+      });
+
+      // Check if enough stock
+      for (const item of orderData.items) {
+        const available = scheduleInventory[item.id] || 0; // item.id is product_id
+        if (available < item.quantity) {
+          return { success: false, error: `Insufficient stock for ${item.name} for this delivery date.` };
+        }
       }
     }
 
@@ -317,7 +311,7 @@ export async function submitOrder(orderData: OrderData) {
         {
           customer_name: orderData.customer_name,
           phone_number: orderData.phone_number,
-          schedule_delivery_id: orderData.schedule_delivery_id,
+          schedule_delivery_id: isPrivateChat ? null : orderData.schedule_delivery_id,
           total_amount: totalAmount,
           notes: orderData.notes || null,
           status: 'pending',

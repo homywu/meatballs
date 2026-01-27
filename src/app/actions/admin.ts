@@ -5,6 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase/server';
 // We use 'any' for incoming payload validation simplicity in this draft, 
 // but proper types should be used in production.
 import type { DeliveryOption, ProductionSchedule } from '@/types/admin';
+import type { Order } from '@/types/order';
 
 async function checkAdmin() {
     const session = await auth();
@@ -174,14 +175,37 @@ export async function upsertProductionSchedule(payload: {
     }
 
     // 3. Handle Deliveries
-    // We can't just delete all because Orders might reference them!
-    // We should upsert based on ID if provided, insert if new, and delete if missing from payload?
-    // Or just allow adding/updating. Removing a delivery slot that has orders is dangerous.
-    // For MVP: We will upsert provided ones. We won't auto-delete missing ones to prevent data loss on orders.
-    // The UI should implement explicit delete for delivery slots.
+    // To sync deletions, we find existing IDs and delete those not present in the payload.
+    const { data: existingDeliveries } = await supabaseAdmin
+        .from('schedule_deliveries')
+        .select('id')
+        .eq('schedule_id', scheduleId);
 
-    for (const del of payload.deliveries) {
-        await supabaseAdmin
+    const existingIds = (existingDeliveries || []).map(d => d.id);
+    const newDeliveries = payload.deliveries;
+    const incomingIds = newDeliveries.map(d => d.id).filter(id => !!id);
+
+    const idsToDelete = existingIds.filter(id => !incomingIds.includes(id));
+
+    if (idsToDelete.length > 0) {
+        const { error: delErr } = await supabaseAdmin
+            .from('schedule_deliveries')
+            .delete()
+            .in('id', idsToDelete);
+
+        if (delErr) {
+            // Likely a foreign key constraint (orders pointing to this slot)
+            console.error('Failed to delete delivery slots:', delErr);
+            return {
+                success: false,
+                error: 'Cannot delete delivery slots that already have orders. Please cancel the orders first.'
+            };
+        }
+    }
+
+    // Upsert the remaining/new ones
+    for (const del of newDeliveries) {
+        const { error: upsertErr } = await supabaseAdmin
             .from('schedule_deliveries')
             .upsert({
                 id: del.id, // undefined means new
@@ -190,11 +214,9 @@ export async function upsertProductionSchedule(payload: {
                 delivery_time: del.delivery_time,
                 cutoff_time: del.cutoff_time
             });
-    }
 
-    // Note: If the user deleted a slot in UI, we haven't handled it here. 
-    // We need a explicit deleteDeliverySlot action or handle it via diffing.
-    // For now, let's assume we stick to upserting.
+        if (upsertErr) return { success: false, error: upsertErr.message };
+    }
 
     return { success: true, data: scheduleId };
 }
@@ -207,6 +229,123 @@ export async function deleteScheduleDelivery(id: string) {
         .from('schedule_deliveries')
         .delete()
         .eq('id', id);
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+}
+
+// --- Orders ---
+
+export async function getAdminOrders(statusFilter?: string) {
+    const session = await checkAdmin();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
+    let query = supabaseAdmin
+        .from('orders')
+        .select(`
+            *,
+            items:order_items(*),
+            schedule_delivery:schedule_deliveries(
+                *,
+                delivery_option:delivery_options(*)
+            )
+        `)
+        .order('created_at', { ascending: false });
+
+    if (statusFilter && statusFilter !== 'all') {
+        query = query.eq('status', statusFilter);
+    }
+
+    const { data, error } = await query;
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: data as Order[] };
+}
+
+export async function getAdminOrder(id: string) {
+    const session = await checkAdmin();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
+    const { data, error } = await supabaseAdmin
+        .from('orders')
+        .select(`
+            *,
+            items:order_items(*),
+            schedule_delivery:schedule_deliveries(
+                *,
+                delivery_option:delivery_options(*)
+            )
+        `)
+        .eq('id', id)
+        .single();
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: data as Order };
+}
+
+export async function updateOrderStatus(id: string, newStatus: string) {
+    const session = await checkAdmin();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
+    // Valid statuses
+    const validStatuses = ['pending', 'paid', 'completed', 'waitlist', 'cancelled'];
+    if (!validStatuses.includes(newStatus)) {
+        return { success: false, error: 'Invalid status value' };
+    }
+
+    // Fetch current order to check if status change is allowed
+    const { data: order, error: fetchError } = await supabaseAdmin
+        .from('orders')
+        .select('status')
+        .eq('id', id)
+        .single();
+
+    if (fetchError) return { success: false, error: fetchError.message };
+
+    // Only allow status updates for pending, waitlist, or cancelled orders
+    const editableStatuses = ['pending', 'waitlist', 'cancelled'];
+    if (!editableStatuses.includes(order.status)) {
+        return {
+            success: false,
+            error: `Cannot change status of ${order.status} orders. Only pending, waitlist, or cancelled orders can be modified.`
+        };
+    }
+
+    const { error } = await supabaseAdmin
+        .from('orders')
+        .update({ status: newStatus })
+        .eq('id', id);
+
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+}
+
+export async function deleteOrder(id: string) {
+    const session = await checkAdmin();
+    if (!session) return { success: false, error: 'Unauthorized' };
+
+    // Fetch current order to check if deletion is allowed
+    const { data: order, error: fetchError } = await supabaseAdmin
+        .from('orders')
+        .select('status')
+        .eq('id', id)
+        .single();
+
+    if (fetchError) return { success: false, error: fetchError.message };
+
+    // Only allow deletion for non-paid and non-completed orders
+    const protectedStatuses = ['paid', 'completed'];
+    if (protectedStatuses.includes(order.status)) {
+        return {
+            success: false,
+            error: `Cannot delete ${order.status} orders. Only pending, waitlist, or cancelled orders can be deleted.`
+        };
+    }
+
+    const { error } = await supabaseAdmin
+        .from('orders')
+        .delete()
+        .eq('id', id);
+
     if (error) return { success: false, error: error.message };
     return { success: true };
 }

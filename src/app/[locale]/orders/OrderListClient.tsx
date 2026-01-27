@@ -201,7 +201,10 @@ export default function OrderListClient({ orders, error, locale }: OrderListClie
                         )}
                       </>
                     ) : (
-                      <div className="text-slate-400 italic text-xs">{t('orders.legacy_order_info')}</div>
+                      <div className="flex items-center gap-2 text-slate-700 font-medium">
+                        <Clock className="w-4 h-4 text-orange-500" />
+                        <span>{t('orders.private_chat')}</span>
+                      </div>
                     )}
                   </div>
                 </div>

@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
-import { Package, Truck, LayoutDashboard } from 'lucide-react';
+import { Package, Truck, LayoutDashboard, ShoppingCart } from 'lucide-react';
 
 export default async function AdminLayout({
     children,
@@ -33,6 +33,13 @@ export default async function AdminLayout({
                     >
                         <Package size={20} />
                         Production Schedules
+                    </Link>
+                    <Link
+                        href={`/${locale}/admin/orders`}
+                        className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-orange-50 hover:text-orange-700 rounded-xl transition-colors font-medium"
+                    >
+                        <ShoppingCart size={20} />
+                        Orders
                     </Link>
                     <Link
                         href={`/${locale}/admin/delivery-options`}
