@@ -254,6 +254,7 @@ export default function HomePage() {
             />
           </AuthGuard>
         )}
+        <div className="h-1"></div>
       </main>
       {/* Sticky Checkout Bar */}
       {totalQty > 0 && (

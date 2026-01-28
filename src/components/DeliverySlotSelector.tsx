@@ -142,6 +142,25 @@ export default function DeliverySlotSelector({ selectedSlotId, onSelectSlot, err
                                                     {t('orders.order_by')} {cutoffStr}
                                                 </div>
                                             )}
+                                            {slot.delivery_option.map_url && (
+                                                <div className="mt-3 rounded-xl overflow-hidden border border-slate-100 relative group h-32">
+                                                    <iframe
+                                                        src={slot.delivery_option.map_url}
+                                                        width="100%"
+                                                        height="100%"
+                                                        style={{ border: 0 }}
+                                                        className="pointer-events-none"
+                                                        allowFullScreen={false}
+                                                        loading="lazy"
+                                                        referrerPolicy="no-referrer-when-downgrade"
+                                                    ></iframe>
+                                                    <div className="absolute inset-0 z-10 bg-transparent flex items-start justify-start p-2">
+                                                        <div className="bg-white/90 px-2 py-1 rounded shadow-sm text-blue-600 text-[10px] font-bold border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            {t('orders.view_larger_map')}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </button>
                                     );
                                 })}
@@ -188,32 +207,6 @@ export default function DeliverySlotSelector({ selectedSlotId, onSelectSlot, err
                     </button>
                 </div>
             </div>
-
-            {selectedSlot?.delivery_option?.map_url && (
-                <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 mt-4 relative group h-40">
-                    <iframe
-                        src={selectedSlot.delivery_option.map_url}
-                        width="100%"
-                        height="100%"
-                        style={{ border: 0 }}
-                        className="pointer-events-none"
-                        allowFullScreen={false}
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                    ></iframe>
-                    <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedSlot.delivery_option.address || selectedSlot.delivery_option.label || '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="absolute inset-0 z-10 bg-transparent flex items-start justify-start p-2"
-                        title={t('orders.view_larger_map')}
-                    >
-                        <div className="bg-white/90 px-3 py-1.5 rounded shadow-sm text-blue-600 text-xs font-bold border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {t('orders.view_larger_map')}
-                        </div>
-                    </a>
-                </div>
-            )}
             {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
         </div>
     );
