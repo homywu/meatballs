@@ -97,23 +97,23 @@ export default function AddToHomeScreen() {
     onAction: () => void;
     onDismiss?: () => void;
   }) => (
-    <div className="fixed bottom-24 left-4 right-4 z-[60] md:bottom-6 md:right-6 md:left-auto md:w-80 animate-in slide-in-from-bottom-10 duration-700">
-      <div className="relative bg-white/95 backdrop-blur-sm rounded-[2rem] shadow-2xl border border-orange-100 p-5 flex flex-col gap-4">
+    <div className="fixed bottom-24 left-4 right-4 z-[50] md:bottom-6 md:right-6 md:left-auto md:w-80 animate-in slide-in-from-bottom-10 duration-700">
+      <div className="relative bg-white rounded-[2.5rem] shadow-2xl border border-orange-100 p-6 flex flex-col gap-5">
         {onDismiss && (
           <button
             onClick={onDismiss}
-            className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 bg-slate-50 rounded-full transition-colors active:scale-95"
+            className="absolute top-5 right-5 p-1.5 text-slate-400 hover:text-slate-600 bg-slate-50 rounded-full transition-colors active:scale-95"
           >
             <X className="w-4 h-4" />
           </button>
         )}
 
         <div className="flex items-start gap-4">
-          <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl flex items-center justify-center border border-orange-200/50">
-            <Icon className="w-6 h-6 text-orange-600" />
+          <div className="flex-shrink-0 w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center border border-orange-100">
+            <Icon className="w-7 h-7 text-orange-600" />
           </div>
-          <div className="flex-1 pt-1">
-            <h3 className="font-bold text-slate-900 leading-tight">{title}</h3>
+          <div className="flex-1 pt-1 pr-6">
+            <h3 className="font-bold text-slate-900 leading-tight text-lg">{title}</h3>
             {description && (
               <p className="text-sm text-slate-500 mt-1 leading-relaxed">
                 {description}
@@ -124,7 +124,7 @@ export default function AddToHomeScreen() {
 
         <button
           onClick={onAction}
-          className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3.5 rounded-2xl font-bold hover:shadow-lg hover:shadow-orange-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-4 rounded-2xl font-bold hover:shadow-lg hover:shadow-orange-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
         >
           {actionText}
         </button>
@@ -134,10 +134,10 @@ export default function AddToHomeScreen() {
 
   const StepItem = ({ number, text }: { number: number; text: string }) => (
     <div className="flex gap-4 items-start group">
-      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-100 text-orange-600 font-bold flex items-center justify-center text-sm border border-orange-200 group-hover:scale-110 transition-transform">
+      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-50 text-orange-600 font-bold flex items-center justify-center text-sm border border-orange-100 group-hover:scale-110 transition-transform">
         {number}
       </div>
-      <p className="text-slate-700 text-sm leading-relaxed pt-1">{text}</p>
+      <p className="text-slate-700 text-sm leading-relaxed pt-1 flex-1">{text}</p>
     </div>
   );
 
@@ -200,13 +200,13 @@ export default function AddToHomeScreen() {
   if (!isIOS && !deferredPrompt) {
     return (
       <>
-        <div className="fixed bottom-24 left-4 right-4 z-[60] md:bottom-6 md:right-6 md:left-auto md:w-64 animate-in slide-in-from-bottom-10 duration-700">
+        <div className="fixed bottom-24 left-4 right-4 z-[90] flex justify-center animate-in slide-in-from-bottom-10 duration-700">
           <button
             onClick={() => setShowManualPrompt(true)}
-            className="w-full bg-white/95 backdrop-blur-sm border border-orange-100 text-orange-600 px-6 py-4 rounded-[2rem] font-bold shadow-2xl hover:bg-orange-50 active:scale-95 transition-all flex items-center justify-center gap-3 group"
+            className="bg-white border border-orange-400 text-orange-600 px-8 py-4 rounded-full font-bold shadow-2xl hover:bg-orange-50 active:scale-95 transition-all flex items-center justify-center gap-3 group"
           >
             <HelpCircle className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-            {t('installTitle')}
+            {t('title')}
           </button>
         </div>
 
@@ -248,14 +248,15 @@ export default function AddToHomeScreen() {
     return (
       <>
         {!showIOSPrompt && (
-          <MiniPrompt
-            icon={Share}
-            title={t('title')}
-            description={t('description')}
-            actionText={t('viewSteps')}
-            onAction={() => setShowIOSPrompt(true)}
-            onDismiss={handleDismiss}
-          />
+          <div className="fixed bottom-24 left-4 right-4 z-[60] flex justify-center animate-in slide-in-from-bottom-10 duration-700">
+            <button
+              onClick={() => setShowIOSPrompt(true)}
+              className="bg-white border border-orange-400 text-orange-600 px-8 py-4 rounded-full font-bold shadow-2xl hover:bg-orange-50 active:scale-95 transition-all flex items-center justify-center gap-3 group"
+            >
+              <HelpCircle className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+              {t('title')}
+            </button>
+          </div>
         )}
 
         {showIOSPrompt && (
