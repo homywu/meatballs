@@ -72,7 +72,7 @@ CREATE TABLE production_schedules (
 -- Create schedule products table (Many-to-Many for Products)
 CREATE TABLE schedule_products (
   schedule_id UUID REFERENCES production_schedules(id) ON DELETE CASCADE,
-  product_id TEXT NOT NULL,
+  product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
   quantity INTEGER NOT NULL CHECK (quantity >= 0),
   PRIMARY KEY (schedule_id, product_id)
 );
@@ -105,8 +105,8 @@ CREATE TABLE orders (
 CREATE TABLE order_items (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
-  product_id TEXT NOT NULL,
-  name TEXT NOT NULL,
+  product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  name TEXT, -- Optional snapshot of name, ID is primary reference for i18n
   quantity INTEGER NOT NULL,
   price DECIMAL(10, 2) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

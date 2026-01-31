@@ -129,15 +129,16 @@ export default function HomePage() {
     try {
       // Transform cart data into OrderItem format
       const items: OrderItem[] = Object.entries(cart)
-        .map(([id, quantity]) => {
+        .map(([id, quantity]): OrderItem | null => {
           const product = products.find((p: { id: string }) => p.id === id);
           if (!product) return null;
           return {
             id: product.id,
             product_id: product.id,
-            name: product.name[locale] || product.name.en,
+            name: (product.name as any)[locale] || (product.name as any).en,
             quantity,
-            price: product.price
+            price: product.price,
+            product
           };
         })
         .filter((item): item is OrderItem => item !== null);

@@ -1,12 +1,12 @@
+import type { Product } from './product';
+
 export interface OrderItem {
-  id: string; // This might be the ID of the row in order_items or the product ID?
-  // Let's make it clear. In the UI we often iterate over items. 
-  // Getting from DB, we will have order_items rows.
-  // Let's align with DB structure + Product ID.
+  id: string;
   product_id: string;
-  name: string;
+  name?: string;
   quantity: number;
   price: number;
+  product?: Product;
 }
 
 export interface OrderData {

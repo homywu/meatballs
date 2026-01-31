@@ -252,7 +252,9 @@ export default function OrderForm({ order, locale }: OrderFormProps) {
                     {order.items?.map((item, index) => (
                         <div key={index} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
                             <div>
-                                <span className="font-medium text-slate-800">{item.name}</span>
+                                <span className="font-medium text-slate-800">
+                                    {(item.product?.name as any)?.[locale] || (item.product?.name as any)?.en || item.name}
+                                </span>
                                 <span className="text-slate-500 ml-2">× {item.quantity}</span>
                             </div>
                             <span className="font-bold text-slate-800">${(item.price * item.quantity).toFixed(2)}</span>

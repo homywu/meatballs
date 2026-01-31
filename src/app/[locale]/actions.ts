@@ -49,7 +49,10 @@ export async function getUserOrders(): Promise<{ success: boolean; data?: Order[
       .from('orders')
       .select(`
         *, 
-        items:order_items(*),
+        items:order_items(
+          *,
+          product:products(*)
+        ),
         schedule_delivery:schedule_deliveries(
           delivery_time,
           delivery_option:delivery_options(
@@ -326,8 +329,7 @@ export async function submitOrder(orderData: OrderData) {
 
     const itemsToInsert = orderData.items.map((item) => ({
       order_id: order.id,
-      product_id: item.id,
-      name: item.name,
+      product_id: item.product_id,
       quantity: item.quantity,
       price: item.price
     }));
@@ -359,7 +361,7 @@ export async function submitOrder(orderData: OrderData) {
 }
 
 // Stats function remains similar but needs schema update
-export async function getAdminStats(): Promise<{
+export async function getAdminStats(locale: string = 'en'): Promise<{
   success: boolean;
   data?: { name: string; quantity: number }[];
   error?: string;
@@ -370,10 +372,10 @@ export async function getAdminStats(): Promise<{
       return { success: false, error: 'Unauthorized access' };
     }
 
-    // Fetch all pending order items
+    // Fetch all pending order items with product names
     const { data: pendingItems, error } = await supabaseAdmin
       .from('order_items')
-      .select('name, quantity, orders!inner(status)')
+      .select('quantity, product_id, product:products(name), orders!inner(status)')
       .eq('orders.status', 'pending');
 
     if (error) {
@@ -381,15 +383,22 @@ export async function getAdminStats(): Promise<{
       return { success: false, error: 'Failed to fetch statistics' };
     }
 
-    // Aggregate quantities by product name
-    const statsMap = new Map<string, number>();
-    pendingItems?.forEach((item) => {
-      const current = statsMap.get(item.name) || 0;
-      statsMap.set(item.name, current + item.quantity);
+    // Aggregate quantities by product_id
+    const statsMap = new Map<string, { name: any; quantity: number }>();
+    pendingItems?.forEach((item: any) => {
+      const pid = item.product_id;
+      if (!statsMap.has(pid)) {
+        statsMap.set(pid, { name: item.product?.name, quantity: 0 });
+      }
+      const current = statsMap.get(pid)!;
+      current.quantity += item.quantity;
     });
 
-    const data = Array.from(statsMap.entries())
-      .map(([name, quantity]) => ({ name, quantity }))
+    const data = Array.from(statsMap.values())
+      .map((item) => ({
+        name: item.name?.[locale] || item.name?.en || 'Unknown Product',
+        quantity: item.quantity
+      }))
       .sort((a, b) => b.quantity - a.quantity);
 
     return { success: true, data };

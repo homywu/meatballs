@@ -151,7 +151,7 @@ export default function OrdersPage() {
                                     <div className="text-sm text-slate-600 mb-2">
                                         {order.items?.map((item, i) => (
                                             <span key={i}>
-                                                {item.name} × {item.quantity}
+                                                {(item.product?.name as any)?.[locale] || (item.product?.name as any)?.en || item.name} × {item.quantity}
                                                 {i < order.items.length - 1 ? ', ' : ''}
                                             </span>
                                         ))}

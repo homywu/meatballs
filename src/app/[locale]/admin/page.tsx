@@ -36,7 +36,7 @@ export default async function AdminPage({
     }
 
     // Fetch stats
-    const statsResult = await getAdminStats();
+    const statsResult = await getAdminStats(locale);
 
     return (
         <div className="min-h-screen bg-[#FDFBF7] pb-8 font-sans">

@@ -243,7 +243,10 @@ export async function getAdminOrders(statusFilter?: string) {
         .from('orders')
         .select(`
             *,
-            items:order_items(*),
+            items:order_items(
+                *,
+                product:products(*)
+            ),
             schedule_delivery:schedule_deliveries(
                 *,
                 delivery_option:delivery_options(*)
@@ -269,7 +272,10 @@ export async function getAdminOrder(id: string) {
         .from('orders')
         .select(`
             *,
-            items:order_items(*),
+            items:order_items(
+                *,
+                product:products(*)
+            ),
             schedule_delivery:schedule_deliveries(
                 *,
                 delivery_option:delivery_options(*)

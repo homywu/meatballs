@@ -214,7 +214,7 @@ export default function OrderListClient({ orders, error, locale }: OrderListClie
                   {order.items.map((item, index) => (
                     <div key={index} className="flex items-center justify-between text-sm">
                       <span className="text-slate-700">
-                        {item.name} × {item.quantity}
+                        {(item.product?.name as any)?.[locale] || item.name} × {item.quantity}
                       </span>
                       <span className="font-medium text-slate-800">
                         ${(item.price * item.quantity).toFixed(2)}
